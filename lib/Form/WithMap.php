@@ -58,7 +58,7 @@ class Form_WithMap extends \Form {
         $this->address_view->setHTML(
             '<b>'.$this->model->get($this->location_field).'</b>.'
             .' lat:'.$this->model->get($this->lat_field)
-            .' lng:'.$this->model->get($this->lat_field)
+            .' lng:'.$this->model->get($this->lng_field)
         );
     }
     // can be redefined to use with dropdown or radio button

@@ -71,7 +71,7 @@ $.each({
         if (lat != null && lng != null) {
             this.markerNew.lat = lat;
             this.markerNew.lng = lng;
-            var ar = {'f_lat':lat,'f_lng':lng,'f_name':title};
+            var ar = {'lat':lat,'lng':lng,'name':title};
             this.markerNew.marker = $.x_gm.marker(ar);
             $.x_gm.map.panTo(new google.maps.LatLng(lat,lng));
 

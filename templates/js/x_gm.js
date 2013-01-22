@@ -28,7 +28,6 @@ $.x_gm._import=function(name,fn){
 
 $.each({
 
-    // with PHP wrapper
     start: function(lat,lng,zoom,options,map_type_id){
         if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.ROADMAP';
     	def={
@@ -38,18 +37,14 @@ $.each({
     	};
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
     },
-
-
-    // with NO PHP wrapper
-
     addDrawingManager: function() {
         var drawingManager = new google.maps.drawing.DrawingManager();
         drawingManager.setMap($.x_gm.map);
     },
-  latlng: function(lat, lng){
-  	return new google.maps.LatLng(lat,lng);
-  },
-  fitZoom: function(points){
+    latlng: function(lat, lng){
+  	    return new google.maps.LatLng(lat,lng);
+    },
+    fitZoom: function(points){
       if (points) {
           var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
           var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
@@ -61,54 +56,47 @@ $.each({
       } else {
           console.log('points is null');
       }
-  },
-  marker: function(args){
-      //console.log('args');
-      //console.log(args);
-//      markerImage = new google.maps.MarkerImage({
-//           url: 'http://localhost/agile/elexu/prototype/upload/0/fsgZjWCr'
-//      });
-//      marker.setIcon(markerImage);
+    },
+    marker: function(args){
 
-  	var marker = new google.maps.Marker({
-      position: new google.maps.LatLng(args['f_lat'],args['f_lng']),
-      animation: google.maps.Animation.DROP,
-      map: $.x_gm.map,
-      title:args['f_name'],
-      clickable:true
-  	});
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(args['lat'],args['lng']),
+            animation: google.maps.Animation.DROP,
+            map: $.x_gm.map,
+            title:args['name'],
+            clickable:true
+        });
 
+        if(args['thumb']) {
+            console.log(args['thumb']);
+            $.ajax({
+                url:args['thumb'],
+                type:'HEAD',
+                error: function() {
+                    //file not exists
+                },
+                success: function() {
+                    //file exists
+                    marker.setIcon(args['thumb']);
+                }
+            });
+        }
 
-      if(args['thumb']) {
-          console.log(args['thumb']);
-          $.ajax({
-              url:args['thumb'],
-              type:'HEAD',
-              error: function() {
-                  //file not exists
-              },
-              success: function() {
-                  //file exists
-                  marker.setIcon(args['thumb']);
-              }
-          });
-      }
+        if(args['name']) {
+            google.maps.event.addListener(marker, 'click', function() {
+                //$.univ().frameURL('title',args['frame_url']);
+                if( typeof $.x_gm.marker.infowindow != 'undefined' ) {
+                    $.x_gm.marker.infowindow.close();
+                }
+                $.x_gm.marker.infowindow = new google.maps.InfoWindow({
+                   content: args['name']
+                });
+                $.x_gm.marker.infowindow.open($.x_gm,marker);
+            });
+        }
 
-      if(args['name']) {
-          google.maps.event.addListener(marker, 'click', function() {
-              //$.univ().frameURL('title',args['frame_url']);
-              if( typeof $.x_gm.marker.infowindow != 'undefined' ) {
-                  $.x_gm.marker.infowindow.close();
-              }
-              $.x_gm.marker.infowindow = new google.maps.InfoWindow({
-                 content: args['name']
-              });
-              $.x_gm.marker.infowindow.open($.x_gm,marker);
-          });
-      }
-
-      return marker;
-  },
+          return marker;
+      },
   // If you find that your google map appears with the gray background
   // in a tab or form, you should do this:
   //

@@ -61,10 +61,15 @@ class View_Map extends \View {
     function showMap($trigger=true){
         $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
         if (in_array('drawing',$this->libraries)) $this->js(true)->x_gm()->addDrawingManager();
+        return $this;
    	}
     function setCenter($lat,$lng){
         $this->lat = $lat;
         $this->lng = $lng;
+        return $this;
+    }
+    function setMarker($args=null,$trigger=true){
+        $this->js($trigger)->x_gm()->marker($args);
         return $this;
     }
     function setZoom($zoom){

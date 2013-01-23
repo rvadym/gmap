@@ -37,8 +37,8 @@ $.each({
     	};
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
     },
-    addDrawingManager: function() {
-        var drawingManager = new google.maps.drawing.DrawingManager();
+    addDrawingManager: function(options){
+        var drawingManager = new google.maps.drawing.DrawingManager(options);
         drawingManager.setMap($.x_gm.map);
     },
     latlng: function(lat, lng){

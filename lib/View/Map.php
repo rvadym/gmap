@@ -53,6 +53,7 @@ class View_Map extends \View {
     public $sensor = 'false';
     public $lat=-34.397;
     public $lng=150.644;
+    public $draw_options = array();
 	function init(){
 		parent::init();
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?sensor='.$this->sensor;
@@ -60,7 +61,9 @@ class View_Map extends \View {
 	}
     function showMap($trigger=true){
         $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
-        if (in_array('drawing',$this->libraries)) $this->js(true)->x_gm()->addDrawingManager();
+        if (in_array('drawing',$this->libraries)) {
+            $this->js(true)->x_gm()->addDrawingManager($this->js(null,$this->draw_options));
+        }
         return $this;
    	}
     function setCenter($lat,$lng){

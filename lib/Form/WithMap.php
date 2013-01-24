@@ -17,19 +17,23 @@ class Form_WithMap extends \Form {
             exit();
         }
     }
-    function setModel($model,$actual_fields=undefined,$map_conf=null){
+    public $map_fields_conf  = null;
+    function setModel($model,$actual_fields=undefined,$map_fields_conf=null){
         parent::setModel($model,$actual_fields);
+        $this->map_fields_conf = $map_fields_conf;
         //$this->model->addHook('afterLoad',array($this,'afterLoad'));
-        $this->prepareMapConf($map_conf);
+        $this->onSubmit(array($this,'checkForm'));
+        $this->renderJs();
+        return $this->model;
+    }
+    private function renderJs(){
+        $this->prepareMapConf($this->map_fields_conf);
         $this->configureAddressField();
         $this->hideLocationFields();
         $this->setOrder();
         $this->addMap();
         $this->addAddressView();
         $this->addAddressFieldJsAction();
-        $this->onSubmit(array($this,'checkForm'));
-
-        return $this->model;
     }
     private $address_field          = false;
     private $addr_field_placeholder = 'Type here to search place by address';

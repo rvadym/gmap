@@ -38,8 +38,46 @@ $.each({
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
     },
     addDrawingManager: function(options){
-        var drawingManager = new google.maps.drawing.DrawingManager(options);
-        drawingManager.setMap($.x_gm.map);
+        this.drawingManager = new google.maps.drawing.DrawingManager(options);
+        this.drawingManager.setMap($.x_gm.map);
+    },
+    polygons: function(options){
+        var polygonsArray = new Array;
+
+        google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
+            if (options.single==true) {
+                if (typeof polygonsArray[0] != 'undefined') polygonsArray[0].setMap(null);
+                polygonsArray[0] = polygon;
+            } else {
+                polygonsArray[polygonsArray.length] = polygon;
+            }
+
+            for (var i= 0; i<polygonsArray.length; i++) {
+                var f = polygonsArray[i].getPath();
+                f.forEach(function(element,index){
+                    console.log(element);
+                });
+                google.maps.event.addListener(polygonsArray[i].getPath(), 'set_at', function() {
+                    console.log('set_at');
+                });
+                google.maps.event.addListener(polygonsArray[i].getPath(), 'insert_at', function() {
+                    console.log('insert_at');
+                });
+                google.maps.event.addListener(polygonsArray[i].getPath(), 'remove_at', function() {
+                    console.log('remove_at');
+                });
+
+                // delete polygon point by click on it
+                google.maps.event.addListener(polygonsArray[i], 'click', function(event) {
+                        path = this.getPath();
+                        for(i=0;i<path.length;i++){
+                            if( event.latLng == path.getAt(i)){
+                                 path.removeAt(i);
+                            }
+                        }
+                 });
+            }
+        });
     },
     latlng: function(lat, lng){
   	    return new google.maps.LatLng(lat,lng);

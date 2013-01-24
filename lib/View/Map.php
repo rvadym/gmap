@@ -59,13 +59,27 @@ class View_Map extends \View {
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?sensor='.$this->sensor;
 		$this->set('Loading Google Map...');
 	}
+    private $show_map_trigger = true;
     function showMap($trigger=true){
+        $this->show_map_trigger = $trigger;
         $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
-        if (in_array('drawing',$this->libraries)) {
-            $this->js(true)->x_gm()->addDrawingManager($this->js(null,$this->draw_options));
-        }
+        $this->addDrawing();
         return $this;
    	}
+    private function addDrawing(){
+        if (in_array('drawing',$this->libraries)) {
+            $this->js($this->show_map_trigger)->x_gm()->addDrawingManager($this->js(null,$this->draw_options));
+            $this->polygons();
+            $this->circles();
+        }
+    }
+    public $polygon_options = array();
+    private function polygons() {
+        $this->js($this->show_map_trigger)->x_gm()->polygons($this->polygon_options);
+    }
+    private function circles() {
+        // CREATE
+    }
     function setCenter($lat,$lng){
         $this->lat = $lat;
         $this->lng = $lng;

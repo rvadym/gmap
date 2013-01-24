@@ -41,7 +41,7 @@ $.each({
         this.drawingManager = new google.maps.drawing.DrawingManager(options);
         this.drawingManager.setMap($.x_gm.map);
     },
-    polygons: function(options){
+    polygons: function(options){ console.log(options);
         var polygonsArray = new Array;
 
         google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
@@ -51,20 +51,24 @@ $.each({
             } else {
                 polygonsArray[polygonsArray.length] = polygon;
             }
+            $.x_gm.setFieldData(options['draw_field_id'],polygon);
 
             for (var i= 0; i<polygonsArray.length; i++) {
                 var f = polygonsArray[i].getPath();
                 f.forEach(function(element,index){
-                    console.log(element);
+                    //console.log(element);
                 });
                 google.maps.event.addListener(polygonsArray[i].getPath(), 'set_at', function() {
                     console.log('set_at');
+                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
                 });
                 google.maps.event.addListener(polygonsArray[i].getPath(), 'insert_at', function() {
                     console.log('insert_at');
+                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
                 });
                 google.maps.event.addListener(polygonsArray[i].getPath(), 'remove_at', function() {
                     console.log('remove_at');
+                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
                 });
 
                 // delete polygon point by click on it
@@ -78,6 +82,14 @@ $.each({
                  });
             }
         });
+    },
+    setFieldData: function(field,data){
+        var data_string = '';
+        var f = data.getPath();
+        f.forEach(function(element,index){
+            data_string = data_string + element;
+        });
+        $('#'+field).val(data_string);
     },
     latlng: function(lat, lng){
   	    return new google.maps.LatLng(lat,lng);

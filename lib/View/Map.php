@@ -75,6 +75,10 @@ class View_Map extends \View {
     }
     public $polygon_options = array();
     private function polygons() {
+        if (is_a($this->owner,'x_gm\Form_WithMap')) {
+            $this->polygon_options['form_id'] = $this->owner->name;
+            $this->polygon_options['draw_field_id'] = $this->owner->draw_f->name;
+        }
         $this->js($this->show_map_trigger)->x_gm()->polygons($this->polygon_options);
     }
     private function circles() {

@@ -29,13 +29,14 @@ class Form_WithMap extends \Form {
     private function renderJs(){
         $this->prepareMapConf($this->map_fields_conf);
         $this->configureAddressField();
-        $this->hideLocationFields();
-        $this->setOrder();
+        if (in_array('drawing',$this->map_config['libraries'])) $this->configureDrawField();
         $this->addMap();
         $this->addAddressView();
         $this->addAddressFieldJsAction();
+        $this->setOrder();
     }
     private $address_field          = false;
+    private $draw_field             = false;
     private $addr_field_placeholder = 'Type here to search place by address';
     private $location_field         = 'f_location';
     private $lat_field              = 'f_lat';
@@ -56,6 +57,7 @@ class Form_WithMap extends \Form {
             $this->addr_f = $this->addField('line','address');
         }
         $this->addr_f->setAttr('placeholder',$this->addr_field_placeholder);
+        $this->hideLocationFields();
     }
     private function addAddressView(){
         $this->address_view = $this->add('\View')->addClass('res');
@@ -70,6 +72,13 @@ class Form_WithMap extends \Form {
         $this->addr_f->js('keyup',
             $this->js()->_selectorThis()->x_gm_form()->getCoordByAddr($this->api->url(null,array('x_gm_action'=>'getAddress'))
         ));
+    }
+    private function configureDrawField(){
+        if ($this->draw_field) {
+            $this->draw_f = $this->getElement($this->draw_field);
+        } else {
+            $this->draw_f = $this->addField('text','draw');
+        }
     }
     private function hideLocationFields() {
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();

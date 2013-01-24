@@ -41,8 +41,15 @@ $.each({
         this.drawingManager = new google.maps.drawing.DrawingManager(options);
         this.drawingManager.setMap($.x_gm.map);
     },
+    polygonsArray: function(){
+        if (typeof polygonsArray != 'undefined') var polygonsArray = new Array;
+        return polygonsArray;
+    },
     polygons: function(options){ console.log(options);
-        var polygonsArray = new Array;
+        if (options.single==true) {
+            $.x_gm.addPolygonFromField(options['draw_field_id']);
+        }
+        var polygonsArray = $.x_gm.polygonsArray();
 
         google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
             if (options.single==true) {
@@ -58,38 +65,57 @@ $.each({
                 f.forEach(function(element,index){
                     //console.log(element);
                 });
-                google.maps.event.addListener(polygonsArray[i].getPath(), 'set_at', function() {
-                    console.log('set_at');
-                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
-                });
-                google.maps.event.addListener(polygonsArray[i].getPath(), 'insert_at', function() {
-                    console.log('insert_at');
-                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
-                });
-                google.maps.event.addListener(polygonsArray[i].getPath(), 'remove_at', function() {
-                    console.log('remove_at');
-                    $.x_gm.setFieldData(options['draw_field_id'],polygon);
-                });
-
-                // delete polygon point by click on it
-                google.maps.event.addListener(polygonsArray[i], 'click', function(event) {
-                        path = this.getPath();
-                        for(i=0;i<path.length;i++){
-                            if( event.latLng == path.getAt(i)){
-                                 path.removeAt(i);
-                            }
-                        }
-                 });
+                $.x_gm.addPolygonListeners(polygonsArray[i],options['draw_field_id']);
             }
         });
+    },
+    addPolygonListeners: function(polygon,field){
+        google.maps.event.addListener(polygon.getPath(), 'set_at', function() {
+            $.x_gm.setFieldData(field,polygon);
+        });
+        google.maps.event.addListener(polygon.getPath(), 'insert_at', function() {
+            $.x_gm.setFieldData(field,polygon);
+        });
+        google.maps.event.addListener(polygon.getPath(), 'remove_at', function() {
+            $.x_gm.setFieldData(field,polygon);
+        });
+
+        // delete polygon point by click on it
+        google.maps.event.addListener(polygon, 'click', function(event) {
+                path = this.getPath();
+                for(i=0;i<path.length;i++){
+                    if( event.latLng == path.getAt(i)){
+                         path.removeAt(i);
+                    }
+                }
+         });
     },
     setFieldData: function(field,data){
         var data_string = '';
         var f = data.getPath();
         f.forEach(function(element,index){
+            if (index != 0) data_string = data_string + '|';
             data_string = data_string + element;
         });
         $('#'+field).val(data_string);
+    },
+    addPolygonFromField: function(field_id){
+        var data_string = $('#'+field_id).val();
+        var p = new google.maps.Polygon;
+        var data_string = data_string.replace(/\)/gi,'');
+        var data_string = data_string.replace(/\(/gi,'');
+        console.log(data_string);
+        var data_arr = data_string.split('|');
+        var path = new google.maps.MVCArray;
+        for (var i=0; i<data_arr.length; i++) {
+            var a = data_arr[i].split(',');console.log(a);
+            path.push($.x_gm.latlng(a[0],a[1]));
+        }
+        p.setPath(path);
+        p.setEditable(true);
+        p.setMap(this.map);
+        $.x_gm.addPolygonListeners(p,field_id);
+        $.x_gm.polygonsArray()[0] = p;
     },
     latlng: function(lat, lng){
   	    return new google.maps.LatLng(lat,lng);

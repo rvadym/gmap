@@ -79,6 +79,7 @@ class Form_WithMap extends \Form {
         } else {
             $this->draw_f = $this->addField('text','draw');
         }
+        $this->draw_f->set('(40.75037808986467, -111.93695068359375)|(40.70250471166452, -111.99325561523438)|(40.704586878965245, -111.829833984375)');
     }
     private function hideLocationFields() {
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();

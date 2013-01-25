@@ -45,7 +45,7 @@ $.each({
         if (typeof polygonsArray != 'undefined') var polygonsArray = new Array;
         return polygonsArray;
     },
-    polygons: function(options){ console.log(options);
+    polygons: function(options){
         if (options.single==true) {
             $.x_gm.addPolygonFromField(options['draw_field_id']);
         }
@@ -60,7 +60,7 @@ $.each({
             }
             $.x_gm.setFieldData(options['draw_field_id'],polygon);
 
-            for (var i= 0; i<polygonsArray.length; i++) {
+            for (var i= 0; i<=polygonsArray.length; i++) {
                 var f = polygonsArray[i].getPath();
                 f.forEach(function(element,index){
                     //console.log(element);
@@ -104,11 +104,10 @@ $.each({
         var p = new google.maps.Polygon;
         var data_string = data_string.replace(/\)/gi,'');
         var data_string = data_string.replace(/\(/gi,'');
-        console.log(data_string);
         var data_arr = data_string.split('|');
         var path = new google.maps.MVCArray;
         for (var i=0; i<data_arr.length; i++) {
-            var a = data_arr[i].split(',');console.log(a);
+            var a = data_arr[i].split(',');
             path.push($.x_gm.latlng(a[0],a[1]));
         }
         p.setPath(path);

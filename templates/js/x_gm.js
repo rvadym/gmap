@@ -100,6 +100,9 @@ $.each({
         $('#'+field).val(data_string);
     },
     addPolygonFromField: function(field_id){
+        var points = new Array();
+        points['lat'] = new Array();
+        points['lng'] = new Array();
         var data_string = $('#'+field_id).val();
         var p = new google.maps.Polygon;
         var data_string = data_string.replace(/\)/gi,'');
@@ -109,12 +112,32 @@ $.each({
         for (var i=0; i<data_arr.length; i++) {
             var a = data_arr[i].split(',');
             path.push($.x_gm.latlng(a[0],a[1]));
+            points['lat'][i] = a[0];
+            points['lng'][i] = a[1];
         }
         p.setPath(path);
         p.setEditable(true);
         p.setMap(this.map);
         $.x_gm.addPolygonListeners(p,field_id);
         $.x_gm.polygonsArray()[0] = p;
+
+        this.fitZoom(this.getDrawPoints(points));
+    },
+    getDrawPoints: function(points){
+        // Function to get the Maximam value in Array
+        Array.max = function( array ){
+            return Math.max.apply( Math, array );
+        };
+        // Function to get the Minimam value in Array
+        Array.min = function( array ){
+            return Math.min.apply( Math, array );
+        };
+        return {
+            'NorthEastLat': Array.min(points['lat']),
+            'NorthEastLng': Array.min(points['lng']),
+            'SouthWestLat': Array.max(points['lat']),
+            'SouthWestLng': Array.max(points['lng'])
+        };
     },
     latlng: function(lat, lng){
   	    return new google.maps.LatLng(lat,lng);

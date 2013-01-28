@@ -125,7 +125,25 @@ class View_Map extends \View {
     }
     private function setWidthHeight(){
    		$this->addStyle(array('height'=>$this->height.'px'));
+        return $this;
    	}
+    function findBounds($points){
+        $count = 0;
+        foreach($points as $point) {
+            $lat[] = $point['lat'];
+            $lon[] = $point['lon'];
+            $count++;
+        }
+        if ($count >= 2) {
+            return array(
+                'NorthEastLat' => min($lat),
+                'NorthEastLng' => min($lon),
+                'SouthWestLat' => max($lat),
+                'SouthWestLng' => max($lon),
+            );
+        }
+        return false;
+    }
     function render() {
         $this->setWidthHeight();
         $this->js(true)

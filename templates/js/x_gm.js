@@ -37,52 +37,83 @@ $.each({
     	};
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
     },
+    drawOptions: function(options){
+        if (typeof options != 'undefined') { draw_options = options; }
+        return draw_options;
+    },
     addDrawingManager: function(options){
         this.drawingManager = new google.maps.drawing.DrawingManager(options);
         this.drawingManager.setMap($.x_gm.map);
+        this.drawOptions(options);
     },
-    polygonsArray: function(){
-        if (typeof polygonsArray != 'undefined') var polygonsArray = new Array;
+    polygonsArray: function(val){
+        if (typeof polygonsArray == 'undefined' || polygonsArray == null) polygonsArray = new Array;
+        if (typeof val != 'undefined') {
+            if (val == null) {
+                polygonsArray = null;
+            } else {
+                polygonsArray[polygonsArray.length] = val;
+            }
+        }
         return polygonsArray;
     },
-    polygons: function(options){
-        if (options.single==true) {
-            $.x_gm.addPolygonFromField(options['draw_field_id']);
+    polygonsCoords: function(obj){
+        if (typeof points == 'undefined' || points==null) {
+            points = new Array();
+            points['lat'] = new Array();
+            points['lng'] = new Array();
         }
+        if (typeof obj != 'undefined') {
+            if (obj == null) {
+                points = null;
+            } else {
+                points['lat'][points['lat'].length]=obj.lat;
+                points['lng'][points['lng'].length]=obj.lng;
+            }
+        }
+        return points;
+    },
+    polygonsOptions: function(options){
+        if (typeof options != 'undefined') { polygons_options = options; }
+        return polygons_options;
+    },
+    polygons: function(options){
+        this.polygonsOptions(options);
+        $.x_gm.addPolygonsFromField();
         var polygonsArray = $.x_gm.polygonsArray();
 
         google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
-            if (options.single==true) {
+            if (polygons_options.single==true) {
                 if (typeof polygonsArray[0] != 'undefined') polygonsArray[0].setMap(null);
                 polygonsArray[0] = polygon;
             } else {
                 polygonsArray[polygonsArray.length] = polygon;
             }
-            $.x_gm.setFieldData(options['draw_field_id'],polygon);
+            $.x_gm.setFieldData(polygon);
 
             for (var i= 0; i<=polygonsArray.length; i++) {
                 var f = polygonsArray[i].getPath();
                 f.forEach(function(element,index){
                     //console.log(element);
                 });
-                $.x_gm.addPolygonListeners(polygonsArray[i],options['draw_field_id']);
+                $.x_gm.addPolygonListeners(polygonsArray[i]);
             }
         });
     },
-    addPolygonListeners: function(polygon,field){
+    addPolygonListeners: function(polygon){
         google.maps.event.addListener(polygon.getPath(), 'set_at', function() {
-            $.x_gm.setFieldData(field,polygon);
+            $.x_gm.setFieldData();
         });
         google.maps.event.addListener(polygon.getPath(), 'insert_at', function() {
-            $.x_gm.setFieldData(field,polygon);
+            $.x_gm.setFieldData();
         });
         google.maps.event.addListener(polygon.getPath(), 'remove_at', function() {
-            $.x_gm.setFieldData(field,polygon);
+            $.x_gm.setFieldData();
         });
 
         // delete polygon point by click on it
         google.maps.event.addListener(polygon, 'click', function(event) {
-                path = this.getPath();
+                var path = this.getPath();
                 for(i=0;i<path.length;i++){
                     if( event.latLng == path.getAt(i)){
                          path.removeAt(i);
@@ -90,45 +121,72 @@ $.each({
                 }
          });
     },
-    setFieldData: function(field,data){
-        var data_string = '';
-        var f = data.getPath();
-        f.forEach(function(element,index){
-            if (index != 0) data_string = data_string + '|';
-            data_string = data_string + element;
-        });
-        $('#'+field).val(data_string);
-    },
-    addPolygonFromField: function(field_id){
-        var points = new Array();
-        points['lat'] = new Array();
-        points['lng'] = new Array();
-        var data_string = $('#'+field_id).val();
-        var p = new google.maps.Polygon;
-        var data_string = data_string.replace(/\)/gi,'');
-        var data_string = data_string.replace(/\(/gi,'');
-        var data_arr = data_string.split('|');
-        var path = new google.maps.MVCArray;
-        for (var i=0; i<data_arr.length; i++) {
-            var a = data_arr[i].split(',');
-            path.push($.x_gm.latlng(a[0],a[1]));
-            points['lat'][i] = a[0];
-            points['lng'][i] = a[1];
+    setFieldData: function(){
+        var data_string = '[';
+        for (var i= 0; i<polygonsArray.length; i++) {
+            data_string = data_string + '[[';
+            var data = polygonsArray[i];
+            var path = data.getPath();
+            path.forEach(function(element,index){
+                if (index > 0) data_string = data_string + ',';
+                data_string = data_string + '[';
+                //console.log (element);
+                //console.log (element.Ya);
+                //console.log (element.Za);
+                data_string = data_string + element.Za+','+element.Ya;
+                data_string = data_string + ']';
+            });
+            data_string = data_string + ']]';
+            if (polygonsArray.length != i+1)data_string = data_string + ',';
         }
-        p.setPath(path);
-        p.setEditable(true);
-        p.setMap(this.map);
-        $.x_gm.addPolygonListeners(p,field_id);
-        $.x_gm.polygonsArray()[0] = p;
-
-        this.fitZoom(this.getDrawPoints(points));
+        data_string = data_string + ']';
+        $('#'+polygons_options['draw_field_id']).val(data_string);
     },
-    getDrawPoints: function(points){
-        // Function to get the Maximam value in Array
+    addPolygonsFromField: function(){
+        this.polygonsCoords(null);
+        this.polygonsArray(null);
+        this.drawPolygons($('#'+polygons_options['draw_field_id']).val());
+        this.fitZoom(this.getFitBounds(this.polygonsCoords()));
+    },
+    drawPolygons: function(json_string) {
+        var arr = $.parseJSON(json_string);
+        getPolygon(arr);
+
+        function getPolygon(arr) {
+            if (typeof arr[0] == 'object' && typeof arr[0][0] == 'object' && typeof arr[0][0][0] == 'object') {
+                for (var i=0; i<arr.length; i++) { getPolygon(arr[i]); } return;
+            }
+            if (typeof arr[0] == 'object' && typeof arr[0][0] == 'object') {
+                getPolygon(arr[0]); return;
+            }
+            var poly = new google.maps.Polygon;
+            poly.setPath( $.x_gm.getPointsPath(arr) );
+            poly.setOptions(draw_options.polygonOptions);
+            if (draw_options.polygonOptions.editable) { ; }
+            poly.setMap($.x_gm.map);
+            $.x_gm.polygonsArray(poly);
+            $.x_gm.addPolygonListeners(poly);
+        }
+    },
+    getPointsPath: function(arr) {
+        var path = new google.maps.MVCArray;
+        for (var i=0; i<arr.length; i++) {
+            var a = arr[i];
+            path.push($.x_gm.latlng(a[1],a[0]));
+            // global points
+            var b = new Object();
+            b.lat = a[1];
+            b.lng = a[0];
+            this.polygonsCoords(b);
+        }
+        return path;
+    },
+    getFitBounds: function(points){
+        // Function to get the Maximum value in Array
         Array.max = function( array ){
             return Math.max.apply( Math, array );
         };
-        // Function to get the Minimam value in Array
+        // Function to get the Minimum value in Array
         Array.min = function( array ){
             return Math.min.apply( Math, array );
         };
@@ -146,10 +204,10 @@ $.each({
       if (points) {
           var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
           var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
-          console.log(NorthEast);
-          console.log(SouthWest);
+          //console.log(NorthEast);
+          //console.log(SouthWest);
           var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
-          console.log(bounds);
+          //console.log(bounds);
           $.x_gm.map.fitBounds(bounds);
       } else {
           console.log('points is null');

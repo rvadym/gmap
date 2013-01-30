@@ -127,25 +127,39 @@ class Form_WithMap extends \Form {
         $this->getElement($this->lng_field)->js(true)->closest('.atk-form-row')->hide();
     }
     private function hideDrawFields() {
-        $this->getElement($this->draw_field)->js(true)->closest('.atk-form-row')->hide();
+        $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
     function addMap() {
         $this->map = $this->add('x_gm\View_Map',$this->map_config);
         $this->map->addJs();
         $this->map->showMap();
-
-        $this->js(true)->x_gm_form()->setFormMapVars(
+        if ($this->form_config['location']==true) $this->setLocationVars();
+        if ($this->form_config['draw']==true) $this->setDrawVars();
+    }
+    private function setLocationVars(){
+        $this->js(true)->x_gm_form()->setLocationVars(
             $this->getElement($this->location_field)->name,
             $this->getElement($this->lat_field)->name,
             $this->getElement($this->lng_field)->name,
             $this->getElement($this->address_field)->name
         );
-        if ($this->model->hasElement($this->lat_field)!='' && $this->model->hasElement($this->lng_field)!='')
+        if ($this->model->hasElement($this->lat_field) && $this->model->hasElement($this->lng_field))
         if ($this->model->get($this->lat_field)!='' && $this->model->get($this->lng_field)!='') {
             $this->map->js(true)->x_gm_form()->markerNew(
                 $this->model->get($this->lat_field),
                 $this->model->get($this->lng_field),
                 $this->model->get($this->location_field)
+            );
+        }
+    }
+    private function setDrawVars(){
+        $this->js(true)->x_gm_form()->setDrawVars(
+            $this->draw_f->name
+        );
+        if ($this->model->hasElement($this->draw_field))
+        if ($this->model->get($this->draw_field)!='') {
+            $this->map->js(true)->x_gm()->drawPolygons(
+                $this->model->get($this->draw_field)
             );
         }
     }

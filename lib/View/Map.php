@@ -149,7 +149,7 @@ class View_Map extends \View {
         $this->setWidthHeight();
         $this->js(true)
       			->_load('x_gm')
-      	//		->_css('x_tags')
+      	//		->_css('x_gm')
         ;
         parent::render();
     }

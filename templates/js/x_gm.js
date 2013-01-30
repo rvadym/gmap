@@ -29,6 +29,8 @@ $.x_gm._import=function(name,fn){
 $.each({
 
     start: function(lat,lng,zoom,options,map_type_id){
+        $.x_gm.polygonsCoords(null);
+        $.x_gm.polygonsArray(null);
         if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.ROADMAP';
     	def={
     		zoom: zoom,
@@ -79,7 +81,6 @@ $.each({
     },
     polygons: function(options){
         this.polygonsOptions(options);
-        $.x_gm.addPolygonsFromField();
         var polygonsArray = $.x_gm.polygonsArray();
 
         google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
@@ -91,7 +92,7 @@ $.each({
             }
             $.x_gm.setFieldData(polygon);
 
-            for (var i= 0; i<=polygonsArray.length; i++) {
+            for (var i= 0; i<polygonsArray.length; i++) {
                 var f = polygonsArray[i].getPath();
                 f.forEach(function(element,index){
                     //console.log(element);
@@ -142,15 +143,13 @@ $.each({
         data_string = data_string + ']';
         $('#'+polygons_options['draw_field_id']).val(data_string);
     },
-    addPolygonsFromField: function(){
-        this.polygonsCoords(null);
-        this.polygonsArray(null);
-        this.drawPolygons($('#'+polygons_options['draw_field_id']).val());
-        this.fitZoom(this.getFitBounds(this.polygonsCoords()));
-    },
     drawPolygons: function(json_string) {
+        if (json_string=='[[[]]]') return;
         var arr = $.parseJSON(json_string);
-        getPolygon(arr);
+        if (arr != null) {
+            getPolygon(arr);
+            $.x_gm.fitZoom($.x_gm.getFitBounds($.x_gm.polygonsCoords()));
+        }
 
         function getPolygon(arr) {
             if (typeof arr[0] == 'object' && typeof arr[0][0] == 'object' && typeof arr[0][0][0] == 'object') {

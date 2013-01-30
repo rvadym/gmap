@@ -28,12 +28,15 @@ $.x_gm_form._import=function(name,fn){
 
 $.each({
 
-    setFormMapVars : function (f_location, f_lat, f_lng, f_address, map_view_id){
+    setLocationVars : function (f_location, f_lat, f_lng, f_address, map_view_id){
     	this.f_location  = f_location;
     	this.f_lat        = f_lat;
     	this.f_lng        = f_lng;
     	this.f_address   = f_address;
     	this.map_view_id = map_view_id;
+    },
+    setDrawVars : function (f_draw){
+    	this.f_draw  = f_draw;
     },
     getCoordByAddr: function(url){
         form_this = this;

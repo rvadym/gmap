@@ -10,45 +10,60 @@ namespace x_gm;
 class Form_WithMap extends \Form {
     public $map;
     public $map_config  = array();
+    public $form_config  = array();
+
+    private $draw_field             = 'draw';
+    private $address_field          = 'address';
+    private $addr_field_placeholder = 'Type here to search place by address';
+    private $location_field         = 'location';
+    private $lat_field              = 'lat';
+    private $lng_field              = 'lng';
+
     function init() {
         parent::init();
         if (isset($_GET['x_gm_action']) && $_GET['x_gm_action'] == 'getAddress') {
             echo json_encode( $this->getCoordByAddr($_GET['addr']));
             exit();
         }
+
+        if (isset($this->form_config['map_fields'])) $this->prepareFieldsNames();
+        if ($this->form_config['location']==true) $this->addLocation();
+        if ($this->form_config['draw']==true) $this->addDraw();
     }
-    public $map_fields_conf  = null;
-    function setModel($model,$actual_fields=undefined,$map_fields_conf=null){
+    private function addLocation(){
+        //echo 'addLocation()';
+    }
+    private function addDraw(){
+        //echo 'addDraw()';
+    }
+    private function prepareFieldsNames(){
+        if (is_array($this->form_config['map_fields'])) {
+            if (array_key_exists('address_field',$this->form_config['map_fields']))
+                $this->address_field = $this->form_config['map_fields']['address_field'];
+            if (array_key_exists('addr_field_placeholder',$this->form_config['map_fields']))
+                $this->addr_field_placeholder = $this->form_config['map_fields']['addr_field_placeholder'];
+            if (array_key_exists('location_field',$this->form_config['map_fields']))
+                $this->location_field = $this->form_config['map_fields']['location_field'];
+            if (array_key_exists('lat_field',$this->form_config['map_fields']))
+                $this->lat_field = $this->form_config['map_fields']['lat_field'];
+            if (array_key_exists('lng_field',$this->form_config['map_fields']))
+                $this->lng_field = $this->form_config['map_fields']['lng_field'];
+        }
+    }
+    function setModel($model,$actual_fields=undefined){
         parent::setModel($model,$actual_fields);
-        $this->map_fields_conf = $map_fields_conf;
         //$this->model->addHook('afterLoad',array($this,'afterLoad'));
         $this->renderJs();
         $this->onSubmit(array($this,'checkForm'));
         return $this->model;
     }
     private function renderJs(){
-        $this->prepareMapConf($this->map_fields_conf);
-        $this->configureAddressField();
-        if (in_array('drawing',$this->map_config['libraries'])) $this->configureDrawField();
+        if ($this->form_config['location']==true) $this->configureAddressField();
+        if ($this->form_config['draw']==true) $this->configureDrawField();
         $this->addMap();
-        $this->addAddressView();
-        $this->addAddressFieldJsAction();
+        if ($this->form_config['location']==true) $this->addAddressView();
+        if ($this->form_config['location']==true) $this->addAddressFieldJsAction();
         $this->setOrder();
-    }
-    private $address_field          = 'address';
-    private $draw_field             = 'draw';
-    private $addr_field_placeholder = 'Type here to search place by address';
-    private $location_field         = 'f_location';
-    private $lat_field              = 'f_lat';
-    private $lng_field              = 'f_lng';
-    private function prepareMapConf($conf){
-        if (is_array($conf)) {
-            if (array_key_exists('address_field',$conf)) $this->address_field = $conf['address_field'];
-            if (array_key_exists('addr_field_placeholder',$conf)) $this->addr_field_placeholder = $conf['addr_field_placeholder'];
-            if (array_key_exists('location_field',$conf)) $this->location_field = $conf['location_field'];
-            if (array_key_exists('lat_field',$conf)) $this->lat_field = $conf['lat_field'];
-            if (array_key_exists('lng_field',$conf)) $this->lng_field = $conf['lng_field'];
-        }
     }
     private function configureAddressField(){
         // address
@@ -104,11 +119,14 @@ class Form_WithMap extends \Form {
         } else {
             $this->draw_f = $this->addField('hidden',$this->draw_field);
         }
+        $this->hideDrawFields();
     }
     private function hideLocationFields() {
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();
         $this->getElement($this->lat_field)->js(true)->closest('.atk-form-row')->hide();
         $this->getElement($this->lng_field)->js(true)->closest('.atk-form-row')->hide();
+    }
+    private function hideDrawFields() {
         $this->getElement($this->draw_field)->js(true)->closest('.atk-form-row')->hide();
     }
     function addMap() {
@@ -136,26 +154,31 @@ class Form_WithMap extends \Form {
         return $this;
     }
     public function checkForm() {
-        if (
-            $this->get($this->addr_f->short_name) == '' ||
-            $this->get($this->location_field) == '' ||
-            $this->get($this->lat_field) == '' ||
-            $this->get($this->lng_field) == ''
-        ) {
-            // TODO notify developerst about bad working form
-            $this->js()->univ()->errorMessage('Something went wrong!')->execute();
+        if ($this->form_config['location']==true) {
+            if (
+                $this->get($this->addr_f->short_name) == '' ||
+                $this->get($this->location_field) == '' ||
+                $this->get($this->lat_field) == '' ||
+                $this->get($this->lng_field) == ''
+            ) {
+                // TODO notify developerst about bad working form
+                $this->js()->univ()->errorMessage('Something went wrong!')->execute();
+            }
+            if (
+                ( is_object($this->addr_f) && $this->model->hasField($this->addr_f->short_name) && $this->get($this->addr_f->short_name) == $this->model->get($this->addr_f->short_name)) ||
+                ( is_object($this->location_field) &&  $this->model->hasField($this->location_field->short_name) && $this->get($this->location_field->short_name) == $this->model->get($this->location_field->short_name)) ||
+                ( is_object($this->lat_field) &&  $this->model->hasField($this->lat_field->short_name) && $this->get($this->lat_field->short_name) == $this->model->get($this->lat_field->short_name)) ||
+                ( is_object($this->lng_field) &&  $this->model->hasField($this->lng_field->short_name) && $this->get($this->lng_field->short_name) == $this->model->get($this->lng_field->short_name))
+            ) {
+                $this->js()->univ()->errorMessage('You didn\'t change location')->execute();
+            } else {
+            }
         }
-        if (
-            ( is_object($this->addr_f) && $this->model->hasField($this->addr_f->short_name) && $this->get($this->addr_f->short_name) == $this->model->get($this->addr_f->short_name)) ||
-            ( is_object($this->location_field) &&  $this->model->hasField($this->location_field->short_name) && $this->get($this->location_field->short_name) == $this->model->get($this->location_field->short_name)) ||
-            ( is_object($this->lat_field) &&  $this->model->hasField($this->lat_field->short_name) && $this->get($this->lat_field->short_name) == $this->model->get($this->lat_field->short_name)) ||
-            ( is_object($this->lng_field) &&  $this->model->hasField($this->lng_field->short_name) && $this->get($this->lng_field->short_name) == $this->model->get($this->lng_field->short_name))
-        ) {
-            $this->js()->univ()->errorMessage('You didn\'t change location')->execute();
-        } else {
-            $this->model->set($this->get())->save();
+        if ($this->form_config['draw']==true) {
+            // check form draw field //
         }
 
+        $this->model->set($this->get())->save();
         $this->js()->univ()->successMessage('Updated')->execute();
     }
     // perform this after model has been loaded (afterLoad)
@@ -183,7 +206,7 @@ class Form_WithMap extends \Form {
         $this->js(true)
                 ->_load('x_gm')
       			->_load('x_gm_form')
-      			//->_css('x_tags')
+      			//->_css('x_gm')
         ;
         parent::render();
     }

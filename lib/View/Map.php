@@ -54,6 +54,7 @@ class View_Map extends \View {
     public $lat=-34.397;
     public $lng=150.644;
     public $draw_options = array();
+    public $options = array();
 	function init(){
 		parent::init();
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?sensor='.$this->sensor;

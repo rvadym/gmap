@@ -147,7 +147,12 @@ $.each({
         $('#'+polygons_options['draw_field_id']).val(data_string);
     },
     drawPolygons: function(json_string) {
-        if (json_string=='[[[]]]') return;
+        json_string = json_string.replace(/\[\[\]\]\,/g, "");
+        json_string = json_string.replace(/\,\[\[\]\]/g, "");
+        json_string = json_string.replace(/\[\[\]\]/g, "");
+        json_string = json_string.replace(/\,\,/gi, ",");
+
+        if (json_string=='[]') return;
         var arr = $.parseJSON(json_string);
         if (arr != null) {
             getPolygon(arr);

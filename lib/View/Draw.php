@@ -13,9 +13,6 @@ class View_Draw extends \View {
     public $lister_spot = 'lister';
     function init(){
         parent::init();
-
-        $this->l = $this->add('x_gm\Lister_Draw',null,$this->lister_spot);
-
         $this->map = $this->add('x_gm\View_Map',array(
             'libraries'=>array('drawing'),
             'sensor'=>true,
@@ -36,10 +33,14 @@ class View_Draw extends \View {
                     strokeWeight: 1,
                     clickable: false,
                     //zIndex: 1,
-                    editable: true
+                    editable: false
                 }
           }"
         ),$this->map_spot);
+
+        $this->l = $this->add('x_gm\Lister_Draw',array(
+            'map'=>$this->map,
+        ),$this->lister_spot);
     }
     function setModel($model, $actual_fields = undefined) {
         parent::setModel($model, $actual_fields);
@@ -71,8 +72,16 @@ class View_Draw extends \View {
 }
 
 class Lister_Draw extends \CompleteLister {
+    public $map;
     function formatRow(){
         parent::formatRow();
-//        $this->current_row['name'] = 'qwe';
+        $v = $this->add('View','v'.$this->current_row['id'])->set($this->current_row['name']);
+        $v->js('click',array(
+                $this->map->js()->x_gm()->polygonsArray(null),
+                $this->map->js()->x_gm()->polygonsCoords(null),
+                $this->map->js()->x_gm()->drawPolygons($this->current_row['draw']),
+            )
+        );
+        $this->current_row_html['name'] = $v->getHTML();
     }
 }

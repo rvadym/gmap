@@ -48,10 +48,13 @@ $.each({
         this.drawingManager.setMap($.x_gm.map);
         this.drawOptions(options);
     },
-    polygonsArray: function(val){
+    polygonsArray: function(val){ console.log('polygonsArray = null');
         if (typeof polygonsArray == 'undefined' || polygonsArray == null) polygonsArray = new Array;
         if (typeof val != 'undefined') {
             if (val == null) {
+                for (var i= 0; i<polygonsArray.length; i++) {
+                    polygonsArray[i].setMap(null);
+                }
                 polygonsArray = null;
             } else {
                 polygonsArray[polygonsArray.length] = val;
@@ -65,7 +68,7 @@ $.each({
             points['lat'] = new Array();
             points['lng'] = new Array();
         }
-        if (typeof obj != 'undefined') {
+        if (typeof obj != 'undefined') { console.log('polygonsCoords = null');
             if (obj == null) {
                 points = null;
             } else {

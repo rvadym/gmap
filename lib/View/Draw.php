@@ -77,6 +77,10 @@ class Grid_Draw extends \Grid {
     function init() {
         parent::init();
         $this->addPaginator(8);
+        $this->add('QuickSearch',null,'quick_search')
+            ->removeClass('float-right')
+            ->useWith($this)
+            ->useFields(array('name'));
     }
     function setModel($model, $actual_fields = undefined){
         parent::setModel($model, $actual_fields);

@@ -10,41 +10,42 @@ namespace x_gm;
 class View_Draw extends \View {
     public $map;
     public $map_spot = 'map';
-    public $lister_spot = 'lister';
+    public $grid_spot = 'grid';
+    public $map_options = array(
+                'libraries'=>array('drawing'),
+                'sensor'=>true,
+                'zoom'=>1,
+                'lat'=>33.5333333,
+                'lng'=>-7.5833333,
+                'polygon_options'=>array('single'=>false),
+                'draw_options'=>"{
+                    drawingControlOptions: {
+                        position: google.maps.ControlPosition.TOP_LEFT,
+                        drawingModes: [
+                            //google.maps.drawing.OverlayType.POLYGON
+                        ]
+                    },
+                    polygonOptions: {
+                        //fillColor: '#ffff00',
+                        //fillOpacity: 1,
+                        strokeWeight: 1,
+                        clickable: false,
+                        //zIndex: 1,
+                        editable: false
+                    }
+              }"
+            );
     function init(){
         parent::init();
-        $this->map = $this->add('x_gm\View_Map',array(
-            'libraries'=>array('drawing'),
-            'sensor'=>true,
-            'zoom'=>1,
-            'lat'=>33.5333333,
-            'lng'=>-7.5833333,
-            'polygon_options'=>array('single'=>false),
-            'draw_options'=>"{
-                drawingControlOptions: {
-                    position: google.maps.ControlPosition.TOP_LEFT,
-                    drawingModes: [
-                        //google.maps.drawing.OverlayType.POLYGON
-                    ]
-                },
-                polygonOptions: {
-                    //fillColor: '#ffff00',
-                    //fillOpacity: 1,
-                    strokeWeight: 1,
-                    clickable: false,
-                    //zIndex: 1,
-                    editable: false
-                }
-          }"
-        ),$this->map_spot);
+        $this->map = $this->add('x_gm\View_Map',$this->map_options,$this->map_spot);
 
-        $this->l = $this->add('x_gm\Lister_Draw',array(
+        $this->l = $this->add('x_gm\Grid_Draw',array(
             'map'=>$this->map,
-        ),$this->lister_spot);
+        ),$this->grid_spot);
     }
     function setModel($model, $actual_fields = undefined) {
         parent::setModel($model, $actual_fields);
-        $this->l->setModel($model);
+        $this->l->setModel($model,array('name','draw'));
         $this->map->showMap();
     }
 
@@ -71,11 +72,20 @@ class View_Draw extends \View {
     }
 }
 
-class Lister_Draw extends \CompleteLister {
+class Grid_Draw extends \Grid {
     public $map;
+    function init() {
+        parent::init();
+        $this->addPaginator(8);
+    }
+    function setModel($model, $actual_fields = undefined){
+        parent::setModel($model, $actual_fields);
+        $this->removeColumn('draw');
+    }
     function formatRow(){
         parent::formatRow();
-        $v = $this->add('View','v'.$this->current_row['id'])->set($this->current_row['name']);
+        $v = $this->add('View','v'.$this->current_row['id'],'content')
+                ->set($this->current_row['name']);
         $v->js('click',array(
                 $this->map->js()->x_gm()->polygonsArray(null),
                 $this->map->js()->x_gm()->polygonsCoords(null),

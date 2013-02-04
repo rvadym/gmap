@@ -208,7 +208,7 @@ class Form_WithMap extends \Form {
         $json_str = curl_exec($ch);
         curl_close($ch);
         $arr = json_decode( $json_str, true ); //var_dump($arr["results"][0]["formatted_address"]);
-        //var_dump($arr["results"][0]);
+        //var_dump($arr);
         //echo json_last_error();
         $lng = $arr['results'][0]['geometry']['location']['lng'];
         $lat = $arr['results'][0]['geometry']['location']['lat'];

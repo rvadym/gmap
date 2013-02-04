@@ -146,7 +146,7 @@ $.each({
         data_string = data_string + ']';
         $('#'+polygons_options['draw_field_id']).val(data_string);
     },
-    drawPolygons: function(json_string) {
+    drawPolygons: function(json_string) {console.log(json_string);
         json_string = json_string.replace(/\[\[\]\]\,/g, "");
         json_string = json_string.replace(/\,\[\[\]\]/g, "");
         json_string = json_string.replace(/\[\[\]\]/g, "");

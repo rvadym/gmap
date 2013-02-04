@@ -119,7 +119,7 @@ class Form_WithMap extends \Form {
         } else {
             $this->draw_f = $this->addField('hidden',$this->draw_field);
         }
-        $this->hideDrawFields();
+        //$this->hideDrawFields();
     }
     private function hideLocationFields() {
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();

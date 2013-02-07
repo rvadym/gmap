@@ -94,6 +94,7 @@ class Grid_Draw extends \Grid {
                 $this->map->js()->x_gm()->polygonsArray(null),
                 $this->map->js()->x_gm()->polygonsCoords(null),
                 $this->map->js()->x_gm()->drawPolygons($this->current_row['draw']),
+                $this->owner->owner->choice->js()->val($this->current_row['id']),
             )
         );
         $this->current_row_html['name'] = $v->getHTML();

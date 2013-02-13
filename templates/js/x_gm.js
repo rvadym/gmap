@@ -31,13 +31,25 @@ $.each({
     start: function(lat,lng,zoom,options,map_type_id){
         $.x_gm.polygonsCoords(null);
         $.x_gm.polygonsArray(null);
-        if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.ROADMAP';
+        if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.TERRAIN';
     	def={
     		zoom: zoom,
     		center: new google.maps.LatLng(lat,lng),
     		mapTypeId: eval(map_type_id)
     	};
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
+        this.addCoordListener();
+    },
+    addCoordListener: function(){
+        google.maps.event.addListener( $.x_gm.map, "click", function (e) {
+            alert( e.latLng.lat() + ',' + e.latLng.lng() );
+            var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+e.latLng.lat() + ',' + e.latLng.lng()+'&sensor=false';
+            $.getJSON(url,
+                function (data) {
+                    console.log(data);
+                }
+            );
+        });
     },
     drawOptions: function(options){
         if (typeof options != 'undefined') { draw_options = options; }

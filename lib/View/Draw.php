@@ -73,6 +73,7 @@ class View_Draw extends \View {
 }
 
 class Grid_Draw extends \Grid {
+    public $show_header = false;
     public $map;
     function init() {
         parent::init();

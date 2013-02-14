@@ -46,7 +46,7 @@ $.each({
             var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+e.latLng.lat() + ',' + e.latLng.lng()+'&sensor=false';
             $.getJSON(url,
                 function (data) {
-                    console.log(data);
+                    //console.log(data);
                 }
             );
         });
@@ -60,7 +60,7 @@ $.each({
         this.drawingManager.setMap($.x_gm.map);
         this.drawOptions(options);
     },
-    polygonsArray: function(val){ console.log('polygonsArray = null');
+    polygonsArray: function(val){ //console.log('polygonsArray = null');
         if (typeof polygonsArray == 'undefined' || polygonsArray == null) polygonsArray = new Array;
         if (typeof val != 'undefined') {
             if (val == null) {
@@ -80,7 +80,7 @@ $.each({
             points['lat'] = new Array();
             points['lng'] = new Array();
         }
-        if (typeof obj != 'undefined') { console.log('polygonsCoords = null');
+        if (typeof obj != 'undefined') { //console.log('polygonsCoords = null');
             if (obj == null) {
                 points = null;
             } else {
@@ -158,7 +158,7 @@ $.each({
         data_string = data_string + ']';
         $('#'+polygons_options['draw_field_id']).val(data_string);
     },
-    drawPolygons: function(json_string) {console.log(json_string);
+    drawPolygons: function(json_string) {//console.log(json_string);
         json_string = json_string.replace(/\[\[\]\]\,/g, "");
         json_string = json_string.replace(/\,\[\[\]\]/g, "");
         json_string = json_string.replace(/\[\[\]\]/g, "");

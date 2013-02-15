@@ -40,6 +40,17 @@ $.each({
         $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
         this.addCoordListener();
     },
+    makeGridSelectable: function($class){
+        $('.'+$class).each(function(){
+            $(this).click(function(event){
+                //console.log($( this).text());
+                $('.'+$class).each(function(){
+                    $( this).removeClass('selected');
+                })
+                $( this).addClass('selected');
+            });
+        })
+    },
     addCoordListener: function(){
         google.maps.event.addListener( $.x_gm.map, "click", function (e) {
             alert( e.latLng.lat() + ',' + e.latLng.lng() );

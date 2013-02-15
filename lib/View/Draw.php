@@ -82,6 +82,7 @@ class Grid_Draw extends \Grid {
 //            ->removeClass('float-right')
 //            ->useWith($this)
 //            ->useFields(array('name'));
+        $this->js(true)->x_gm()->makeGridSelectable('element_to_select');
     }
     function setModel($model, $actual_fields = undefined){
         parent::setModel($model, $actual_fields);
@@ -89,7 +90,7 @@ class Grid_Draw extends \Grid {
     }
     function formatRow(){
         parent::formatRow();
-        $v = $this->add('View','v'.$this->current_row['id'],'content')
+        $v = $this->add('View','v'.$this->current_row['id'],'content')->addClass('element_to_select')
                 ->set($this->current_row['name']);
         $v->js('click',array(
                 $this->map->js()->x_gm()->polygonsArray(null),

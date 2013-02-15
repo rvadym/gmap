@@ -52,7 +52,7 @@ $.each({
             });
         })
     },
-    selectOneInGrid: function(elemet_id){
+    selectOneInGrid: function(elemet_id){ console.log(elemet_id);
         $('#'+elemet_id).addClass('selected');
         $('#'+elemet_id).append('<span class="continue">continue<span>');
         $('span.continue').click(function(){

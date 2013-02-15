@@ -48,10 +48,17 @@ $.each({
                     $( this).removeClass('selected');
                 })
                 $('.continue').remove();
-                $( this).addClass('selected');
-                $( this).append('<span class="continue">continue<span>');
+                $.x_gm.selectOneInGrid(this.id);
             });
         })
+    },
+    selectOneInGrid: function(elemet_id){
+        $('#'+elemet_id).addClass('selected');
+        $('#'+elemet_id).append('<span class="continue">continue<span>');
+        $('span.continue').click(function(){
+            $('.big_fat_form').find('input[name=ajax_submit]').val('form_submit');
+            $('.big_fat_form').submit();
+        });
     },
     addCoordListener: function(){
         google.maps.event.addListener( $.x_gm.map, "click", function (e) {

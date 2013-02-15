@@ -47,7 +47,9 @@ $.each({
                 $('.'+$class).each(function(){
                     $( this).removeClass('selected');
                 })
+                $('.continue').remove();
                 $( this).addClass('selected');
+                $( this).append('<span class="continue">continue<span>');
             });
         })
     },

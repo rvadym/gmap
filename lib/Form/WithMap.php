@@ -129,8 +129,9 @@ class Form_WithMap extends \Form {
     private function hideDrawFields() {
         $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
-    function addMap() {
-        $this->map = $this->add('x_gm\View_Map',$this->map_config);
+    function addMap() {var_dump($this->owner->template->hasTag('map'));
+        $spot = ($this->owner->template->hasTag('map'))? 'map':null;
+        $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,$spot);
         $this->map->addJs();
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();

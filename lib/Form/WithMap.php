@@ -129,7 +129,7 @@ class Form_WithMap extends \Form {
     private function hideDrawFields() {
         $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
-    function addMap() {var_dump($this->owner->template->hasTag('map'));
+    function addMap() {
         if ($this->owner->template->hasTag('map')){
             $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,'map');
         } else {

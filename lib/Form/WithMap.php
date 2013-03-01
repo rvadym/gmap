@@ -130,8 +130,11 @@ class Form_WithMap extends \Form {
         $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
     function addMap() {var_dump($this->owner->template->hasTag('map'));
-        $spot = ($this->owner->template->hasTag('map'))? 'map':null;
-        $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,$spot);
+        if ($this->owner->template->hasTag('map')){
+            $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,'map');
+        } else {
+            $this->map = $this->add('x_gm\View_Map',$this->map_config);
+        }
         $this->map->addJs();
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();

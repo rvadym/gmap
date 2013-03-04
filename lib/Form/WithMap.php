@@ -94,7 +94,11 @@ class Form_WithMap extends \Form {
         $this->hideLocationFields();
     }
     private function addAddressView(){
-        $this->address_view = $this->add('\View')->addClass('res');
+        if ($this->owner->template->hasTag('map_address')){
+            $this->address_view = $this->owner->add('\View',null,'map_address')->addClass('res');
+        } else {
+            $this->address_view = $this->add('\View')->addClass('res');
+        }
         if (
             $this->model->hasElement($this->location_field) &&
             $this->model->hasElement($this->lat_field) &&

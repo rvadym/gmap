@@ -50,11 +50,11 @@ class Form_WithMap extends \Form {
                 $this->lng_field = $this->form_config['map_fields']['lng_field'];
         }
     }
-    function setModel($model,$actual_fields=undefined){
+    function setModel($model,$actual_fields=undefined,$add_submit=true){
         parent::setModel($model,$actual_fields);
         //$this->model->addHook('afterLoad',array($this,'afterLoad'));
         $this->renderJs();
-        $this->onSubmit(array($this,'checkForm'));
+        if ($add_submit) $this->onSubmit(array($this,'checkForm'));
         return $this->model;
     }
     private function renderJs(){

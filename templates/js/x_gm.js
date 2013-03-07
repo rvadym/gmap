@@ -169,7 +169,7 @@ $.each({
                 //console.log (element);
                 //console.log (element.Ya);
                 //console.log (element.Za);
-                data_string = data_string + element.Za+','+element.Ya;
+                data_string = data_string + element.lng()+','+element.lat();
                 data_string = data_string + ']';
             });
             data_string = data_string + ']]';

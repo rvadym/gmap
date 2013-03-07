@@ -31,7 +31,7 @@ $.each({
     start: function(lat,lng,zoom,options,map_type_id){
         $.x_gm.polygonsCoords(null);
         $.x_gm.polygonsArray(null);
-        if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.TERRAIN';
+        if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.ROADMAP';
     	def={
     		zoom: zoom,
     		center: new google.maps.LatLng(lat,lng),

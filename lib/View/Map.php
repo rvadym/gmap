@@ -75,10 +75,12 @@ class View_Map extends \View {
         }
     }
     public $polygon_options = array();
+    public $form_with_draw_field = false;
     private function polygons() {
-        if (is_a($this->owner,'x_gm\Form_WithMap')) {
-            $this->polygon_options['form_id'] = $this->owner->name;
-            $this->polygon_options['draw_field_id'] = $this->owner->draw_f->name;
+        if (!$this->form_with_draw_field) $this->form_with_draw_field = $this->owner;
+        if (is_subclass_of($this->form_with_draw_field,'x_gm\Form_WithMap')) {
+            $this->polygon_options['form_id'] = $this->form_with_draw_field->name;
+            $this->polygon_options['draw_field_id'] = $this->form_with_draw_field->draw_f->name;
         }
         $this->js($this->show_map_trigger)->x_gm()->polygons($this->polygon_options);
     }

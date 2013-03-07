@@ -157,7 +157,7 @@ $.each({
                 }
          });
     },
-    setFieldData: function(){
+    setFieldData: function(){console.log(polygons_options['draw_field_id']);
         var data_string = '[';
         for (var i= 0; i<polygonsArray.length; i++) {
             data_string = data_string + '[[';
@@ -166,9 +166,6 @@ $.each({
             path.forEach(function(element,index){
                 if (index > 0) data_string = data_string + ',';
                 data_string = data_string + '[';
-                //console.log (element);
-                //console.log (element.Ya);
-                //console.log (element.Za);
                 data_string = data_string + element.lng()+','+element.lat();
                 data_string = data_string + ']';
             });

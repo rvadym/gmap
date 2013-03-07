@@ -135,6 +135,7 @@ class Form_WithMap extends \Form {
     }
     function addMap() {
         if ($this->owner->template->hasTag('map')){
+            $this->map_config = array_merge($this->map_config,array('form_with_draw_field'=>$this));
             $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,'map');
         } else {
             $this->map = $this->add('x_gm\View_Map',$this->map_config);

@@ -83,6 +83,7 @@ class Grid_Draw extends \Grid {
 //            ->useWith($this)
 //            ->useFields(array('name'));
         $this->js(true)->x_gm()->makeGridSelectable('element_to_select');
+        if ($_GET['coverage_field']) $this->js(true)->x_gm()->makeGridItemsAddeble('element_to_select',$_GET['coverage_field']);
     }
     function setModel($model, $actual_fields = undefined){
         parent::setModel($model, $actual_fields);

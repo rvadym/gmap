@@ -52,7 +52,7 @@ $.each({
             });
         })
     },
-    selectOneInGrid: function(elemet_id){ console.log(elemet_id);
+    selectOneInGrid: function(elemet_id){ //console.log(elemet_id);
         $('#'+elemet_id).addClass('selected');
         $('#'+elemet_id).append('<span class="continue">continue<span>');
         $('span.continue').click(function(){
@@ -60,9 +60,37 @@ $.each({
             $('.big_fat_form').submit();
         });
     },
+    makeGridItemsAddeble: function(id,field_id){
+        $('.'+id).each(function(){
+            $(this).click(function(event){
+                //console.log($( this).text());
+                $('.select').remove();
+                $.x_gm.addAreaToField(this.id,field_id);
+            });
+        })
+    },
+    addAreaToField: function(elemet_id,field_id){ //console.log(field_id);
+        var obj = $.parseJSON($('#'+field_id).val());
+        if (obj === null) obj = new Object();
+
+        $('#'+elemet_id).append('<span class="select">or select<span>');
+        $('span.select').click(function(){
+            var var_name = $('#'+elemet_id).closest('tr').attr('data-id');
+            var name_html = $('#'+elemet_id).clone();
+            name_html.find('span').remove();
+            var type_html = $('#currently_open').clone();
+            type_html.find('span').remove();
+            obj[var_name] = {
+                'id': $('#'+elemet_id).closest('tr').attr('data-id'),
+                'name': name_html.text(),
+                'type': $.trim(type_html.text())
+            };
+            $('#'+field_id).val($.univ.toJSON(obj));
+        });
+    },
     addCoordListener: function(){
         google.maps.event.addListener( $.x_gm.map, "click", function (e) {
-            alert( e.latLng.lat() + ',' + e.latLng.lng() );
+            //alert( e.latLng.lat() + ',' + e.latLng.lng() );
             var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+e.latLng.lat() + ',' + e.latLng.lng()+'&sensor=false';
             $.getJSON(url,
                 function (data) {

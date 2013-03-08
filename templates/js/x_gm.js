@@ -75,17 +75,19 @@ $.each({
 
         $('#'+elemet_id).append('<span class="select">or select<span>');
         $('span.select').click(function(){
-            var var_name = $('#'+elemet_id).closest('tr').attr('data-id');
+            var data_id = $('#'+elemet_id).closest('tr').attr('data-id');
             var name_html = $('#'+elemet_id).clone();
             name_html.find('span').remove();
             var type_html = $('#currently_open').clone();
             type_html.find('span').remove();
+            var var_name = type_html.text().replace( /[^a-zA-Z0-9]/g , '') + '_' + data_id;
             obj[var_name] = {
-                'id': $('#'+elemet_id).closest('tr').attr('data-id'),
+                'id': data_id,
                 'name': name_html.text(),
                 'type': $.trim(type_html.text())
             };
             $('#'+field_id).val($.univ.toJSON(obj));
+            $('#'+field_id).trigger('change');
             $('#'+elemet_id).univ().closeDialog();
         });
     },

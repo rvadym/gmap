@@ -86,6 +86,7 @@ $.each({
                 'type': $.trim(type_html.text())
             };
             $('#'+field_id).val($.univ.toJSON(obj));
+            $('#'+elemet_id).univ().closeDialog();
         });
     },
     addCoordListener: function(){

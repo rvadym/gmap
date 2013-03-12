@@ -67,12 +67,14 @@ class View_Map extends \View {
         $this->addDrawing();
 
         // markers
-        $points = $this->calculatePoints();
-        $center = $this->findCenter($points);
-        $bound_coord = $this->findBounds($points);
-        if (count($center))$this->setCenter($center['lat'],$center['lng']);
-        $this->setMarkers($points);
-        $this->js(true)->x_gm()->fitZoom($bound_coord);
+        if ($this->model) {
+            $points = $this->calculatePoints();
+            $center = $this->findCenter($points);
+            $bound_coord = $this->findBounds($points);
+            if (count($center))$this->setCenter($center['lat'],$center['lng']);
+            $this->setMarkers($points);
+            $this->js(true)->x_gm()->fitZoom($bound_coord);
+        }
         return $this;
    	}
     private function addDrawing(){
@@ -100,8 +102,8 @@ class View_Map extends \View {
         $this->lng = $lng;
         return $this;
     }
-    function setMarker($args=null,$trigger=true){
-        $this->js($trigger)->x_gm()->marker($args);
+    function setMarker($point){
+        $this->js($this->show_map_trigger)->x_gm()->marker($point['lat'],$point['lng'],$point['args']);
         return $this;
     }
     function setZoom($zoom){
@@ -142,7 +144,8 @@ class View_Map extends \View {
     //
     function setMarkers($points){
         foreach($points as $point) {//var_dump($point);echo '<hr>';
-            $this->js($this->show_map_trigger)->x_gm()->marker($point['lat'],$point['lng'],$point['args']);
+            $this->setMarker($point);
+            //$this->js($this->show_map_trigger)->x_gm()->marker($point['lat'],$point['lng'],$point['args']);
         }
     }
     function calculatePoints(){

@@ -93,7 +93,7 @@ $.each({
     },
     addCoordListener: function(){
         google.maps.event.addListener( $.x_gm.map, "click", function (e) {
-            //alert( e.latLng.lat() + ',' + e.latLng.lng() );
+            alert( e.latLng.lat() + ',' + e.latLng.lng() );
             var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+e.latLng.lat() + ',' + e.latLng.lng()+'&sensor=false';
             $.getJSON(url,
                 function (data) {
@@ -277,13 +277,22 @@ $.each({
           //console.log(bounds);
           $.x_gm.map.fitBounds(bounds);
       } else {
-          console.log('points is null');
+          console.log('points is null -');
+          //var NorthEast = new google.maps.LatLng(81.72318761821157,-167.34375);
+          var NorthEast = new google.maps.LatLng(77.69287033641928,-142.734375);
+          //var SouthWest = new google.maps.LatLng(-83.02621885344844,156.09375);
+          var SouthWest = new google.maps.LatLng(-62.91523303947613,158.90625);
+          console.log(NorthEast);
+          console.log(SouthWest);
+          var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
+          console.log(bounds);
+          $.x_gm.map.fitBounds(bounds);
       }
     },
-    marker: function(args){
+    marker: function(lat,lng,args){
 
         var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(args['lat'],args['lng']),
+            position: new google.maps.LatLng(lat,lng),
             animation: google.maps.Animation.DROP,
             map: $.x_gm.map,
             title:args['name'],

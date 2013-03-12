@@ -46,7 +46,7 @@ namespace x_gm;
 class View_Map extends \View {
 	public $height=400;
 	public $width=400;
-    public $center = array('lat'=>-34.397, 'lon'=>150.644);
+    public $center = array('lat'=>-34.397, 'lng'=>150.644);
     public $zoom=10;
     public $api_js_url = null;
     public $libraries = array();
@@ -65,6 +65,14 @@ class View_Map extends \View {
         $this->show_map_trigger = $trigger;
         $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
         $this->addDrawing();
+
+        // markers
+        $points = $this->calculatePoints();
+        $center = $this->findCenter($points);
+        $bound_coord = $this->findBounds($points);
+        if (count($center))$this->setCenter($center['lat'],$center['lng']);
+        $this->setMarkers($points);
+        $this->js(true)->x_gm()->fitZoom($bound_coord);
         return $this;
    	}
     private function addDrawing(){
@@ -130,19 +138,55 @@ class View_Map extends \View {
    		$this->addStyle(array('height'=>$this->height.'px'));
         return $this;
    	}
+
+    //
+    function setMarkers($points){
+        foreach($points as $point) {//var_dump($point);echo '<hr>';
+            $this->js($this->show_map_trigger)->x_gm()->marker($point['lat'],$point['lng'],$point['args']);
+        }
+    }
+    function calculatePoints(){
+        $points = array();
+        if ($this->model) {
+            foreach($this->model as $point) {
+                $points[] = array(
+                    'lat'  =>$point['f_lat'],
+                    'lng'  =>$point['f_lng'],
+                    'name' =>$point['name'],
+                    'args' =>$point
+                );
+            }
+    }
+        return $points;
+    }
+    function findCenter($points){
+        $count = 0;
+        foreach($points as $point) {
+            $lat[] = $point['lat'];
+            $lng[] = $point['lng'];
+            $count++;
+        }
+        if ($count) {
+            return array(
+                'lat' => array_sum($lat) / $count,
+                'lng' => array_sum($lng) / $count,
+            );
+        }
+        return false;
+    }
     function findBounds($points){
         $count = 0;
         foreach($points as $point) {
             $lat[] = $point['lat'];
-            $lon[] = $point['lon'];
+            $lng[] = $point['lng'];
             $count++;
         }
         if ($count >= 2) {
             return array(
                 'NorthEastLat' => min($lat),
-                'NorthEastLng' => min($lon),
+                'NorthEastLng' => min($lng),
                 'SouthWestLat' => max($lat),
-                'SouthWestLng' => max($lon),
+                'SouthWestLng' => max($lng),
             );
         }
         return false;

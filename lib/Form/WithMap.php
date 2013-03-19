@@ -50,27 +50,11 @@ class Form_WithMap extends \Form {
                 $this->lng_field = $this->form_config['map_fields']['lng_field'];
         }
     }
-    function setModel($model,$actual_fields=undefined,$add_submit=true){
+    function setModel($model,$actual_fields=undefined,$add_on_submit=true){
         parent::setModel($model,$actual_fields);
         //$this->model->addHook('afterLoad',array($this,'afterLoad'));
-        $this->renderJs();
-        if ($add_submit) $this->onSubmit(array($this,'checkForm'));
+        $this->addMap($add_on_submit);
         return $this->model;
-    }
-    private $js_rendered = false;
-    function renderJs(){
-        if ($this->js_rendered) {
-            //$this->js(true,'console.log("renderJs called twice")');
-            //return;
-            throw $this->exception('Don\'t call this method twice');
-        }
-        $this->js_rendered = true;
-        if ($this->form_config['location']==true) $this->configureAddressField();
-        if ($this->form_config['draw']==true) $this->configureDrawField();
-        $this->addMap();
-        if ($this->form_config['location']==true) $this->addAddressView();
-        if ($this->form_config['location']==true) $this->addAddressFieldJsAction();
-        $this->setOrder();
     }
     private function configureAddressField(){
         // address
@@ -141,7 +125,11 @@ class Form_WithMap extends \Form {
     private function hideDrawFields() {
         $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
-    function addMap() {
+    function addMap($add_on_submit=true) {
+        if ($this->form_config['location']==true) $this->configureAddressField();
+        if ($this->form_config['draw']==true) $this->configureDrawField();
+        $this->setOrder();
+
         if ($this->owner->template->hasTag('map')){
             $this->map_config = array_merge($this->map_config,array('form_with_draw_field'=>$this));
             $this->map = $this->owner->add('x_gm\View_Map',$this->map_config,'map');
@@ -154,7 +142,11 @@ class Form_WithMap extends \Form {
         );
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();
+        if ($this->form_config['location']==true) $this->addAddressView();
+        if ($this->form_config['location']==true) $this->addAddressFieldJsAction();
         if ($this->form_config['draw']==true) $this->setDrawVars();
+
+        if ($add_on_submit) $this->onSubmit(array($this,'checkForm'));
     }
     private function setLocationVars(){
         $this->js(true)->x_gm_form()->setLocationVars(

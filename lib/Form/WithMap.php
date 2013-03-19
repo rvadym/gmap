@@ -9,7 +9,7 @@
 namespace x_gm;
 class Form_WithMap extends \Form {
     public $map;
-    public $map_config  = array();
+    public $map_config   = array();
     public $form_config  = array();
 
     private $draw_field             = 'draw';
@@ -57,7 +57,14 @@ class Form_WithMap extends \Form {
         if ($add_submit) $this->onSubmit(array($this,'checkForm'));
         return $this->model;
     }
-    private function renderJs(){
+    private $js_rendered = false;
+    function renderJs(){
+        if ($this->js_rendered) {
+            //$this->js(true,'console.log("renderJs called twice")');
+            //return;
+            throw $this->exception('Don\'t call this method twice');
+        }
+        $this->js_rendered = true;
         if ($this->form_config['location']==true) $this->configureAddressField();
         if ($this->form_config['draw']==true) $this->configureDrawField();
         $this->addMap();
@@ -99,6 +106,7 @@ class Form_WithMap extends \Form {
         } else {
             $this->address_view = $this->add('\View')->addClass('res');
         }
+        if (is_object($this->model))
         if (
             $this->model->hasElement($this->location_field) &&
             $this->model->hasElement($this->lat_field) &&
@@ -123,7 +131,7 @@ class Form_WithMap extends \Form {
         } else {
             $this->draw_f = $this->addField('hidden',$this->draw_field);
         }
-        //$this->hideDrawFields();
+        $this->hideDrawFields();
     }
     private function hideLocationFields() {
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();
@@ -141,6 +149,9 @@ class Form_WithMap extends \Form {
             $this->map = $this->add('x_gm\View_Map',$this->map_config);
         }
         $this->map->addJs();
+        $this->js(true)->x_gm_form()->bindLocationFields(
+            $this->location_field,$this->lat_field,$this->lng_field,$this->address_field
+        );
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();
         if ($this->form_config['draw']==true) $this->setDrawVars();
@@ -152,6 +163,7 @@ class Form_WithMap extends \Form {
             $this->getElement($this->lng_field)->name,
             $this->getElement($this->address_field)->name
         );
+        if (is_object($this->model))
         if ($this->model->hasElement($this->lat_field) && $this->model->hasElement($this->lng_field))
         if ($this->model->get($this->lat_field)!='' && $this->model->get($this->lng_field)!='') {
             $this->map->js(true)->x_gm_form()->markerNew(

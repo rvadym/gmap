@@ -75,13 +75,19 @@ $.each({
             this.markerNew.lat = lat;
             this.markerNew.lng = lng;
             var ar = {'lat':lat,'lng':lng,'name':title};
-            this.markerNew.marker = $.x_gm.marker(ar);
+            this.markerNew.marker = $.x_gm.marker(lat,lng,ar);
             $.x_gm.map.panTo(new google.maps.LatLng(lat,lng));
 
             $('#'+this.f_location).val( title );
             $('#'+this.f_lat).val( lat );
             $('#'+this.f_lng).val( lng );
         }
+    },
+    bindLocationFields : function (f_location, f_lat, f_lng, search){
+        $.x_gm_form.f_location = f_location;
+        $.x_gm_form.f_lat  = f_lat;
+        $.x_gm_form.f_lng  = f_lng;
+        $.x_gm_form.search = search;
     }
 
 },$.x_gm_form._import);

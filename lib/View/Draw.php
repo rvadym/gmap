@@ -6,7 +6,7 @@
  * Time: 3:19 PM
  * To change this template use File | Settings | File Templates.
  */
-namespace x_gm;
+namespace rvadym\gmap;
 class View_Draw extends \View {
     public $map;
     public $map_spot = 'map';
@@ -37,9 +37,9 @@ class View_Draw extends \View {
             );
     function init(){
         parent::init();
-        $this->map = $this->add('x_gm\View_Map',$this->map_options,$this->map_spot);
+        $this->map = $this->add('rvadym\gmap\View_Map',$this->map_options,$this->map_spot);
 
-        $this->l = $this->add('x_gm\Grid_Draw',array(
+        $this->l = $this->add('rvadym\gmap\Grid_Draw',array(
             'map'=>$this->map,
         ),$this->grid_spot);
     }
@@ -51,11 +51,11 @@ class View_Draw extends \View {
 
     /* addon settings */
     function render() {
-        $this->js(true)
-                //->_load('x_gm')
-      			//->_load('x_gm_form')
-      			//->_css('x_gm')
-        ;
+        /*$this->js(true)
+            ->_load('rvadymGMap')
+            ->_load('rvadymGMap_form')
+            //->_css('rvadymGMap')
+        ;*/
         parent::render();
     }
     function defaultTemplate() {
@@ -91,9 +91,9 @@ class Grid_Draw extends \Grid {
         $v = $this->add('View','v'.$this->current_row['id'],'content')
                 ->set($this->current_row['name']);
         $v->js('click',array(
-                $this->map->js()->x_gm()->polygonsArray(null),
-                $this->map->js()->x_gm()->polygonsCoords(null),
-                $this->map->js()->x_gm()->drawPolygons($this->current_row['draw']),
+                $this->map->js()->rvadym/gmap()->polygonsArray(null),
+                $this->map->js()->rvadym/gmap()->polygonsCoords(null),
+                $this->map->js()->rvadym/gmap()->drawPolygons($this->current_row['draw']),
             )
         );
         $this->current_row_html['name'] = $v->getHTML();

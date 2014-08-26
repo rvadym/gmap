@@ -13,21 +13,21 @@
 1. a)  add these lines to page if you will load map View with ajax
       this code will add static js include to page with map because we can't load js from other domain by ajax
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
         $map->addJsAndDestroy();
 
    b) or this code if you will load map View with no ajax
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
         $map->addJs();
 
 2. a) Add to View which will be loaded by ajax. Same like before.
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
    b) Don't do anything special if you load View with no ajax
@@ -42,11 +42,11 @@
 
 
  */
-namespace x_gm;
+namespace rvadym\gmap;
 class View_Map extends \View {
 	public $height=400;
 	public $width=400;
-    public $center = array('lat'=>-34.397, 'lon'=>150.644);
+    public $center = array('lat'=>-34.397, 'lng'=>150.644);
     public $zoom=10;
     public $api_js_url = null;
     public $libraries = array();
@@ -63,24 +63,24 @@ class View_Map extends \View {
     private $show_map_trigger = true;
     function showMap($trigger=true){
         $this->show_map_trigger = $trigger;
-        $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
+        $this->js($trigger)->rvadym/gmap()->start($this->lat,$this->lng,$this->zoom);
         $this->addDrawing();
         return $this;
    	}
     private function addDrawing(){
         if (in_array('drawing',$this->libraries)) {
-            $this->js($this->show_map_trigger)->x_gm()->addDrawingManager($this->js(null,$this->draw_options));
+            $this->js($this->show_map_trigger)->rvadym/gmap()->addDrawingManager($this->js(null,$this->draw_options));
             $this->polygons();
             $this->circles();
         }
     }
     public $polygon_options = array();
     private function polygons() {
-        if (is_a($this->owner,'x_gm\Form_WithMap')) {
+        if (is_a($this->owner,'rvadym/gmap\Form_WithMap')) {
             $this->polygon_options['form_id'] = $this->owner->name;
             $this->polygon_options['draw_field_id'] = $this->owner->draw_f->name;
         }
-        $this->js($this->show_map_trigger)->x_gm()->polygons($this->polygon_options);
+        $this->js($this->show_map_trigger)->rvadym/gmap()->polygons($this->polygon_options);
     }
     private function circles() {
         // CREATE
@@ -91,7 +91,7 @@ class View_Map extends \View {
         return $this;
     }
     function setMarker($args=null,$trigger=true){
-        $this->js($trigger)->x_gm()->marker($args);
+        $this->js($trigger)->rvadymGMap()->marker($args);
         return $this;
     }
     function setZoom($zoom){
@@ -121,7 +121,7 @@ class View_Map extends \View {
         $this->destroy();
     }
     private function addDrawingManager(){
-        $this->js()->x_gm()->addDrawingManager();
+        $this->js()->rvadymGMap()->addDrawingManager();
         return $this;
     }
     private function setWidthHeight(){
@@ -132,15 +132,15 @@ class View_Map extends \View {
         $count = 0;
         foreach($points as $point) {
             $lat[] = $point['lat'];
-            $lon[] = $point['lon'];
+            $lng[] = $point['lng'];
             $count++;
         }
         if ($count >= 2) {
             return array(
                 'NorthEastLat' => min($lat),
-                'NorthEastLng' => min($lon),
+                'NorthEastLng' => min($lng),
                 'SouthWestLat' => max($lat),
-                'SouthWestLng' => max($lon),
+                'SouthWestLng' => max($lng),
             );
         }
         return false;
@@ -148,8 +148,8 @@ class View_Map extends \View {
     function render() {
         $this->setWidthHeight();
         $this->js(true)
-      			->_load('x_gm')
-      	//		->_css('x_gm')
+      			->_load('rvadymGMap')
+      	//		->_css('rvadymGMap')
         ;
         parent::render();
     }

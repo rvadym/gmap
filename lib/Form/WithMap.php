@@ -6,7 +6,7 @@
  * Time: 10:49 PM
  * To change this template use File | Settings | File Templates.
  */
-namespace x_gm;
+namespace rvadym\gmap;
 class Form_WithMap extends \Form {
     public $map;
     public $map_config  = array();
@@ -21,7 +21,7 @@ class Form_WithMap extends \Form {
 
     function init() {
         parent::init();
-        if (isset($_GET['x_gm_action']) && $_GET['x_gm_action'] == 'getAddress') {
+        if (isset($_GET['rvadym_gmap_action']) && $_GET['rvadym_gmap_action'] == 'getAddress') {
             echo json_encode( $this->getCoordByAddr($_GET['addr']));
             exit();
         }
@@ -110,7 +110,7 @@ class Form_WithMap extends \Form {
     // can be redefined to use with dropdown or radio button
     function addAddressFieldJsAction(){
         $this->addr_f->js('keyup',
-            $this->js()->_selectorThis()->x_gm_form()->getCoordByAddr($this->api->url(null,array('x_gm_action'=>'getAddress'))
+            $this->js()->_selectorThis()->rvadymGMap_form()->getCoordByAddr($this->api->url(null,array('rvadym/gmap_action'=>'getAddress'))
         ));
     }
     private function configureDrawField(){
@@ -130,14 +130,14 @@ class Form_WithMap extends \Form {
         $this->draw_f->js(true)->closest('.atk-form-row')->hide();
     }
     function addMap() {
-        $this->map = $this->add('x_gm\View_Map',$this->map_config);
+        $this->map = $this->add('rvadym\gmap\View_Map',$this->map_config);
         $this->map->addJs();
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();
         if ($this->form_config['draw']==true) $this->setDrawVars();
     }
     private function setLocationVars(){
-        $this->js(true)->x_gm_form()->setLocationVars(
+        $this->js(true)->rvadymGMap_form()->setLocationVars(
             $this->getElement($this->location_field)->name,
             $this->getElement($this->lat_field)->name,
             $this->getElement($this->lng_field)->name,
@@ -145,7 +145,7 @@ class Form_WithMap extends \Form {
         );
         if ($this->model->hasElement($this->lat_field) && $this->model->hasElement($this->lng_field))
         if ($this->model->get($this->lat_field)!='' && $this->model->get($this->lng_field)!='') {
-            $this->map->js(true)->x_gm_form()->markerNew(
+            $this->map->js(true)->rvadymGMap_form()->markerNew(
                 $this->model->get($this->lat_field),
                 $this->model->get($this->lng_field),
                 $this->model->get($this->location_field)
@@ -153,12 +153,12 @@ class Form_WithMap extends \Form {
         }
     }
     private function setDrawVars(){
-        $this->js(true)->x_gm_form()->setDrawVars(
+        $this->js(true)->rvadymGMap_form()->setDrawVars(
             $this->draw_f->name
         );
         if ($this->model->hasElement($this->draw_field))
         if ($this->model->get($this->draw_field)!='') {
-            $this->map->js(true)->x_gm()->drawPolygons(
+            $this->map->js(true)->rvadymGMap()->drawPolygons(
                 $this->model->get($this->draw_field)
             );
         }
@@ -218,9 +218,9 @@ class Form_WithMap extends \Form {
     }
     function render() {
         $this->js(true)
-                ->_load('x_gm')
-      			->_load('x_gm_form')
-      			//->_css('x_gm')
+                ->_load('rvadymGMap')
+      			->_load('rvadymGMap_form')
+      			//->_css('rvadymGMap')
         ;
         parent::render();
     }

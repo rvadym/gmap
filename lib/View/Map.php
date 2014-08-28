@@ -63,24 +63,24 @@ class View_Map extends \View {
     private $show_map_trigger = true;
     function showMap($trigger=true){
         $this->show_map_trigger = $trigger;
-        $this->js($trigger)->rvadym/gmap()->start($this->lat,$this->lng,$this->zoom);
+        $this->js($trigger)->rvadymGMap()->start($this->lat,$this->lng,$this->zoom);
         $this->addDrawing();
         return $this;
    	}
     private function addDrawing(){
         if (in_array('drawing',$this->libraries)) {
-            $this->js($this->show_map_trigger)->rvadym/gmap()->addDrawingManager($this->js(null,$this->draw_options));
+            $this->js($this->show_map_trigger)->rvadymGMap()->addDrawingManager($this->js(null,$this->draw_options));
             $this->polygons();
             $this->circles();
         }
     }
     public $polygon_options = array();
     private function polygons() {
-        if (is_a($this->owner,'rvadym/gmap\Form_WithMap')) {
+        if (is_a($this->owner,'rvadym\gmap\Form_WithMap')) {
             $this->polygon_options['form_id'] = $this->owner->name;
             $this->polygon_options['draw_field_id'] = $this->owner->draw_f->name;
         }
-        $this->js($this->show_map_trigger)->rvadym/gmap()->polygons($this->polygon_options);
+        $this->js($this->show_map_trigger)->rvadymGMap()->polygons($this->polygon_options);
     }
     private function circles() {
         // CREATE

@@ -227,7 +227,8 @@ $.each({
             animation: google.maps.Animation.DROP,
             map: $.rvadymGMap.map,
             title:args['name'],
-            clickable:true
+            clickable:true,
+            draggable:true
         });
 
         if(args['thumb']) {
@@ -260,26 +261,26 @@ $.each({
 
           return marker;
       },
-  // If you find that your google map appears with the gray background
-  // in a tab or form, you should do this:
-  //
-  // $tabs->js('tabsactivate',$tt->js()->rvadymGMap()->resize());
-  // or use identical event for Dialog
-  //
-  resize: function(){
-      return new google.maps.event.trigger($.rvadymGMap,'resize');
-  },
-  markerCounter: function(marker){
-      if( typeof $.rvadymGMap.markerCounter.markers == 'undefined' ) { $.rvadymGMap.markerCounter.markers = []; }
-//      console.log($.rvadymGMap.markerCounter.markers.length);
-      $.each($.rvadymGMap.markerCounter.markers, function(index, value) {
-          if (value.title == marker.title) {
-              console.log('===> ' +value.title + ': ' + marker.title);
-          }
-      });
+      // If you find that your google map appears with the gray background
+      // in a tab or form, you should do this:
+      //
+      // $tabs->js('tabsactivate',$tt->js()->rvadymGMap()->resize());
+      // or use identical event for Dialog
+      //
+      resize: function(){
+          return new google.maps.event.trigger($.rvadymGMap,'resize');
+      },
+      markerCounter: function(marker){
+          if( typeof $.rvadymGMap.markerCounter.markers == 'undefined' ) { $.rvadymGMap.markerCounter.markers = []; }
+    //      console.log($.rvadymGMap.markerCounter.markers.length);
+          $.each($.rvadymGMap.markerCounter.markers, function(index, value) {
+              if (value.title == marker.title) {
+                  console.log('===> ' +value.title + ': ' + marker.title);
+              }
+          });
 
-      $.rvadymGMap.markerCounter.markers[$.rvadymGMap.markerCounter.markers.length] = marker;
-  },
+          $.rvadymGMap.markerCounter.markers[$.rvadymGMap.markerCounter.markers.length] = marker;
+      },
     renderMapWithTimeout: function(map,time){
         $.rvadymGMap.getCoordinatesByAddr.lastRequest = '';
         $.rvadymGMap.markerNew.marker = undefined;

@@ -7,17 +7,26 @@
  * To change this template use File | Settings | File Templates.
  */
 namespace rvadym\gmap;
-class Form_WithMap extends \Form {
-    public $map;
-    public $map_config  = array();
-    public $form_config  = array();
+abstract class Form_WithMap extends \Form {
 
-    private $draw_field             = 'draw';
-    private $address_field          = 'address';
-    private $addr_field_placeholder = 'Type here to search place by address';
-    private $location_field         = 'location';
-    private $lat_field              = 'lat';
-    private $lng_field              = 'lng';
+    public $map;
+    public $map_config   = array();
+    //public $form_config  = array();
+
+    // GMAP FEATURES TO BE ENABLED
+    //protected $location_enabled       = true;
+    //protected $draw_enabled           = false;
+
+
+    // FIELDS
+    protected $draw_field;
+    protected $address_field;
+    protected $location_field;
+    protected $lat_field;
+    protected $lng_field;
+
+    //
+    protected $addr_field_placeholder = 'Type here to search place by address';
 
     function init() {
         parent::init();
@@ -26,149 +35,107 @@ class Form_WithMap extends \Form {
             exit();
         }
 
-        if (isset($this->form_config['map_fields'])) $this->prepareFieldsNames();
-        if ($this->form_config['location']==true) $this->addLocation();
-        if ($this->form_config['draw']==true) $this->addDraw();
+        //if ($this->location_enabled) $this->addLocation();
+        //if ($this->draw_enabled) $this->addDraw();
     }
-    private function addLocation(){
-        //echo 'addLocation()';
-    }
-    private function addDraw(){
-        //echo 'addDraw()';
-    }
-    private function prepareFieldsNames(){
-        if (is_array($this->form_config['map_fields'])) {
-            if (array_key_exists('address_field',$this->form_config['map_fields']))
-                $this->address_field = $this->form_config['map_fields']['address_field'];
-            if (array_key_exists('addr_field_placeholder',$this->form_config['map_fields']))
-                $this->addr_field_placeholder = $this->form_config['map_fields']['addr_field_placeholder'];
-            if (array_key_exists('location_field',$this->form_config['map_fields']))
-                $this->location_field = $this->form_config['map_fields']['location_field'];
-            if (array_key_exists('lat_field',$this->form_config['map_fields']))
-                $this->lat_field = $this->form_config['map_fields']['lat_field'];
-            if (array_key_exists('lng_field',$this->form_config['map_fields']))
-                $this->lng_field = $this->form_config['map_fields']['lng_field'];
-        }
-    }
-    function setModel($model,$actual_fields=undefined){
-        parent::setModel($model,$actual_fields);
-        //$this->model->addHook('afterLoad',array($this,'afterLoad'));
-        $this->renderJs();
-        $this->onSubmit(array($this,'checkForm'));
-        return $this->model;
-    }
-    private function renderJs(){
-        if ($this->form_config['location']==true) $this->configureAddressField();
-        if ($this->form_config['draw']==true) $this->configureDrawField();
-        $this->addMap();
-        if ($this->form_config['location']==true) $this->addAddressView();
-        if ($this->form_config['location']==true) $this->addAddressFieldJsAction();
-        $this->setOrder();
-    }
-    private function configureAddressField(){
+
+
+    //--------------------------------------------------------------------------------
+    //
+    //                                LOCATION
+    //
+    //--------------------------------------------------------------------------------
+
+    protected function addAddressField($addr='address',$loc='location',$lat='lat',$lng='lng') {
+
         // address
-        if ($this->hasElement($this->address_field)) {
-            $this->addr_f = $this->getElement($this->address_field);
-        } else {
-            $this->addr_f = $this->addField('line',$this->address_field);
+        if (!$this->address_field) {
+            $this->address_field= $this->addField('Line',$addr);
         }
-        $this->addr_f->setAttr('placeholder',$this->addr_field_placeholder);
+        $this->address_field->setAttr('placeholder',$this->addr_field_placeholder);
+
         // location
-        if ($this->hasElement($this->location_field)) {
-            $this->loc_f = $this->getElement($this->location_field);
-        } else {
-            $this->loc_f = $this->addField('hidden',$this->location_field);
+        if (!$this->location_field) {
+            $this->location_field= $this->addField('Line',$loc);
         }
+
         // latitude
-        if ($this->hasElement($this->lat_field)) {
-            $this->lat_f = $this->getElement($this->lat_field);
-        } else {
-            $this->lat_f = $this->addField('hidden',$this->lat_field);
+        if (!$this->lat_field) {
+            $this->lat_field= $this->addField('Line',$lat);
         }
+
         // longitude
-        if ($this->hasElement($this->lng_field)) {
-            $this->lng_f = $this->getElement($this->lng_field);
-        } else {
-            $this->lng_f = $this->addField('hidden',$this->lng_field);
+        if (!$this->lng_field) {
+            $this->lng_field= $this->addField('Line',$lng);
         }
-        $this->hideLocationFields();
+
+        //$this->hideLocationFields();
+        $this->addMap();
+        $this->setLocationVars();
+        $this->addAddressFieldJsAction();
+        $this->addAddressView();
     }
-    private function addAddressView(){
+    protected function hideLocationFields() {
+        if ($this->location_field) $this->location_field->js(true)->closest('.atk-form-row')->hide();
+        if ($this->lat_field)      $this->lat_field->js(true)->closest('.atk-form-row')->hide();
+        if ($this->lng_field)      $this->lng_field->js(true)->closest('.atk-form-row')->hide();
+    }
+    protected function addAddressView() {
         $this->address_view = $this->add('\View')->addClass('res');
-        if (
-            $this->model->hasElement($this->location_field) &&
-            $this->model->hasElement($this->lat_field) &&
-            $this->model->hasElement($this->lng_field)
-        ) {
-            $this->address_view->setHTML(
-                '<b>'.$this->model->get($this->location_field).'</b>.'
-                .' lat:'.$this->model->get($this->lat_field)
-                .' lng:'.$this->model->get($this->lng_field)
-            );
+        $this->js(true)->rvadymGMap_form()->bindLocationFieldsWithLocationView($this->address_view->name);
+
+        if ($this->model)
+        if ($this->location_field && $this->lat_field && $this->lng_field) {
+            $this->js(true)->rvadymGMap_form()->setLocationView(array(
+                'name' => $this->model->get($this->location_field),
+                'lng'  => $this->model->get($this->lng_field),
+                'lat'  => $this->model->get($this->lat_field),
+            ));
         }
     }
     // can be redefined to use with dropdown or radio button
-    function addAddressFieldJsAction(){
-        $this->addr_f->js('keyup',
-            $this->js()->_selectorThis()->rvadymGMap_form()->getCoordByAddr($this->api->url(null,array('rvadym/gmap_action'=>'getAddress'))
+    function addAddressFieldJsAction() {
+        $this->address_field->js('keyup',
+            $this->js()->_selectorThis()->rvadymGMap_form()->getCoordByAddr($this->app->url(null,array('rvadym_gmap_action'=>'getAddress'))
         ));
     }
-    private function configureDrawField(){
-        if ($this->hasElement($this->draw_field)) {
-            $this->draw_f = $this->getElement($this->draw_field);
-        } else {
-            $this->draw_f = $this->addField('hidden',$this->draw_field);
+    protected function setLocationVars() {
+        $this->js(true)->rvadymGMap_form()->setLocationVars(
+            $this->location_field->name,
+            $this->lat_field->name,
+            $this->lng_field->name,
+            $this->address_field->name
+        );
+
+        if ($this->model)
+        if ($this->model->hasElement($this->lat_field->short_name) && $this->model->hasElement($this->lng_field->short_name))
+        if ($this->model->get($this->lat_field->short_name)!='' && $this->model->get($this->lng_field->short_name)!='') {
+            $this->map->js(true)->rvadymGMap_form()->markerNew(
+                $this->model->get($this->lat_field->short_name),
+                $this->model->get($this->lng_field->short_name),
+                $this->model->get($this->location_field->short_name)
+            );
         }
-        $this->hideDrawFields();
     }
-    private function hideLocationFields() {
-        $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();
-        $this->getElement($this->lat_field)->js(true)->closest('.atk-form-row')->hide();
-        $this->getElement($this->lng_field)->js(true)->closest('.atk-form-row')->hide();
-    }
-    private function hideDrawFields() {
-        $this->draw_f->js(true)->closest('.atk-form-row')->hide();
-    }
+
+    // LOCATION -----------------------------------------------------------------------
+
+
+
+
+
+
+
+
     function addMap() {
         $this->map = $this->add('rvadym\gmap\View_Map',$this->map_config);
         $this->map->addJs();
         $this->map->showMap();
-        if ($this->form_config['location']==true) $this->setLocationVars();
-        if ($this->form_config['draw']==true) $this->setDrawVars();
-    }
-    private function setLocationVars(){
-        $this->js(true)->rvadymGMap_form()->setLocationVars(
-            $this->getElement($this->location_field)->name,
-            $this->getElement($this->lat_field)->name,
-            $this->getElement($this->lng_field)->name,
-            $this->getElement($this->address_field)->name
-        );
-        if ($this->model->hasElement($this->lat_field) && $this->model->hasElement($this->lng_field))
-        if ($this->model->get($this->lat_field)!='' && $this->model->get($this->lng_field)!='') {
-            $this->map->js(true)->rvadymGMap_form()->markerNew(
-                $this->model->get($this->lat_field),
-                $this->model->get($this->lng_field),
-                $this->model->get($this->location_field)
-            );
-        }
-    }
-    private function setDrawVars(){
-        $this->js(true)->rvadymGMap_form()->setDrawVars(
-            $this->draw_f->name
-        );
-        if ($this->model->hasElement($this->draw_field))
-        if ($this->model->get($this->draw_field)!='') {
-            $this->map->js(true)->rvadymGMap()->drawPolygons(
-                $this->model->get($this->draw_field)
-            );
-        }
-    }
-    // redefine to change form design
-    function setOrder() {
-        return $this;
+//        if ($this->location_enabled) $this->setLocationVars();
+//        if ($this->draw_enabled) $this->setDrawVars();
     }
     public function checkForm() {
-        if ($this->form_config['location']==true) {
+        if ($this->location_enabled) {
             if (
                 $this->get($this->addr_f->short_name) == '' ||
                 $this->get($this->location_field) == '' ||
@@ -188,18 +155,35 @@ class Form_WithMap extends \Form {
             } else {
             }
         }
-        if ($this->form_config['draw']==true) {
+        if ($this->draw_enabled) {
             // check form draw field //
         }
 
         $this->model->set($this->get())->save();
         $this->js()->univ()->successMessage('Updated')->execute();
     }
-    // perform this after model has been loaded (afterLoad)
-//    function afterLoad(){exit('sdf');
-//        $this->set($this->addr_f->short_name,$this->model->get($this->location_field));
-//        $this->address_view->set($this->model->get($this->location_field));
-//    }
+    function render() {
+        $this->js(true)
+                ->_load('rvadymGMap')
+      			->_load('rvadymGMap_form')
+      			//->_css('rvadymGMap')
+        ;
+        parent::render();
+    }
+
+
+    //--------------------------------------------------------------------------------
+    //
+    //                                UTIL
+    //
+    //--------------------------------------------------------------------------------
+
+
+    // change to geocoder
+    // http://www.wikihow.com/Geocode-an-Address-in-Google-Maps-Javascript
+    // https://developers.google.com/maps/documentation/geocoding/
+    // http://stackoverflow.com/questions/5688745/google-maps-v3-draggable-marker
+
     function getCoordByAddr($addr) {
         $url = "http://maps.google.com/maps/api/geocode/json?sensor=false&address=".urlencode($addr);
         $ch = curl_init($url);
@@ -216,24 +200,114 @@ class Form_WithMap extends \Form {
         $ret_arr = array('lng'=>$lng,'lat'=>$lat,'name'=>$location);
         return $ret_arr;
     }
-    function render() {
-        $this->js(true)
-                ->_load('rvadymGMap')
-      			->_load('rvadymGMap_form')
-      			//->_css('rvadymGMap')
-        ;
-        parent::render();
-    }
-    function defaultTemplate() {
-		// add add-on locations to pathfinder
-		$l = $this->api->locate('addons',__NAMESPACE__,'location');
-		$addon_location = $this->api->locate('addons',__NAMESPACE__);
-		$this->api->pathfinder->addLocation($addon_location,array(
-			'js'=>'templates/js',
-			'css'=>'templates/css',
-            'template'=>'templates',
-		))->setParent($l);
 
-        return parent::defaultTemplate();
+    // UTIL ---------------------------------------------------------------------------
+
+
+
+
+
+    /*----------------------------
+     *
+     *
+     *    TO BE IMPLEMENTED
+     *
+     *
+     */
+//    protected function addLocation(){
+//        //echo 'addLocation()';
+//    }
+//    protected function addDraw(){
+//        //echo 'addDraw()';
+//    }
+    // redefine to change form design
+    function setOrder() {
+        return $this;
     }
+
+
+
+
+
+    //--------------------------------------------------------------------------------
+    //
+    //                                DRAWING
+    //
+    //--------------------------------------------------------------------------------
+
+//    protected function configureDrawField() {
+//        if ($this->hasElement($this->draw_field)) {
+//            $this->draw_f = $this->getElement($this->draw_field);
+//        } else {
+//            $this->draw_f = $this->addField('hidden',$this->draw_field);
+//        }
+//        $this->hideDrawFields();
+//    }
+//    protected function hideDrawFields() {
+//        $this->draw_f->js(true)->closest('.atk-form-row')->hide();
+//    }
+//    protected function setDrawVars() {
+//        $this->js(true)->rvadymGMap_form()->setDrawVars(
+//            $this->draw_f->name
+//        );
+//        if ($this->model->hasElement($this->draw_field))
+//            if ($this->model->get($this->draw_field)!='') {
+//                $this->map->js(true)->rvadymGMap()->drawPolygons(
+//                    $this->model->get($this->draw_field)
+//                );
+//            }
+//    }
+
+    // DRAWING -----------------------------------------------------------------------
+
+
+
+//    function setModel($model,$actual_fields=undefined,$ignore_model=false) {
+//        if (!$ignore_model) parent::setModel($model,$actual_fields);
+//        //$this->model->addHook('afterLoad',array($this,'afterLoad'));
+//        $this->renderJs();
+//        $this->onSubmit(array($this,'checkForm'));
+//        return $this->model;
+//    }
+
+
+
+
+
+    /*----------------------------
+     *
+     *
+     *    TO BE REMOVED
+     *
+     *
+     */
+
+//    function defaultTemplate() {
+        // add add-on locations to pathfinder
+//		$l = $this->api->locate('addons',__NAMESPACE__,'location');
+//		$addon_location = $this->api->locate('addons',__NAMESPACE__);
+//		$this->api->pathfinder->addLocation($addon_location,array(
+//			'js'=>'public/js',
+//			'css'=>'public/css',
+//            'template'=>'templates',
+//		))->setParent($l);
+
+//        return parent::defaultTemplate();
+//    }
+
+
+    // perform this after model has been loaded (afterLoad)
+//    function afterLoad(){exit('sdf');
+//        $this->set($this->addr_f->short_name,$this->model->get($this->location_field));
+//        $this->address_view->set($this->model->get($this->location_field));
+//    }
+
+
+
+
+//    protected function renderJs(){
+//        //if ($this->draw_enabled) $this->configureDrawField();
+//        $this->addMap();
+//        //$this->setOrder();
+//    }
 }

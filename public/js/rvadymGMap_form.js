@@ -28,7 +28,7 @@ $.rvadymGMap_form._import=function(name,fn){
 
 $.each({
 
-    setLocationVars : function (f_location, f_lat, f_lng, f_address, map_view_id){
+    setLocationViewElements : function (f_location, f_lat, f_lng, f_address, map_view_id){
     	this.f_location  = f_location;
     	this.f_lat       = f_lat;
     	this.f_lng       = f_lng;
@@ -56,7 +56,13 @@ $.each({
                         ,function(data) {
                             console.log(data);
                             //that.setLocationView(data);
-                            $('#'+this.map_view_id).rvadymGMap_form().markerNew(data.lat,data.lng,data.name,data);
+
+                            $('#'+that.f_location).val( data.name );
+                            $('#'+that.f_lat).val( data.lat );
+                            $('#'+that.f_lng).val( data.lng );
+                            $('#'+that.f_address).change();
+
+                            //$('#'+this.map_view_id).rvadymGMap_form().markerNew(data.lat,data.lng,data.name,data);
                         }
                     );
                     that.getCoordByAddr.lastRequest = addr;
@@ -68,6 +74,13 @@ $.each({
     },
     bindLocationFieldsWithLocationView: function(view_id) {
         that = this;
+
+        under_operation = false;
+
+        // address
+        $('#'+this.f_address).on('change',function(e){
+            that.refreshMapView(view_id);
+        });
 
         // location
         $('#'+this.f_location).on('change',function(e){
@@ -93,38 +106,61 @@ $.each({
             $('#'+that.f_lat).change();
         });
     },
+    refreshMapView: function (view_id) {
+
+        that = this;
+
+        var title = $('#'+ this.f_location).val();
+        var lng   = $('#'+ this.f_lng).val();
+        var lat   = $('#'+ this.f_lat).val();
+
+        this.setLocationView(view_id);
+
+        var counter = 0;
+        function setMarker() {
+            if (counter > 10) {
+                console.log('Cannot perform delayed operation');
+            }
+            counter = counter+1;
+            if (typeof $.rvadymGMap.map != 'undefined') {
+                that.markerNew(lat,lng,title);
+                return;
+            } else {
+                timer = setTimeout(function() {
+                    setMarker();
+                },1000)
+            }
+        }
+        setMarker();
+    },
     setLocationView: function(view_id) {
 
-        var name = $('#'+ this.f_location).val();
-        var lng = $('#'+ this.f_lng).val();
-        var lat = $('#'+ this.f_lat).val();
+        var title = $('#'+ this.f_location).val();
+        var lng   = $('#'+ this.f_lng).val();
+        var lat   = $('#'+ this.f_lat).val();
 
-        $('#'+view_id).html('<b>'+name+'.</b> <i>lng '+lng+' lat '+lat+'</i>');
+        $('#'+view_id).html('<b>'+title+'.</b> <i>lng '+lng+' lat '+lat+'</i>');
     },
-    markerNew: function(lat,lng,title,args){
+    markerNew: function(lat,lng,title,args) {
 
         that = this;
 
         if( typeof this.markerNew.marker != 'undefined' ) {
-            if ( this.markerNew.lat != lat && this.markerNew.lng != lng && lat != null && lng != null ) {
+            //if ( this.markerNew.lat != lat && this.markerNew.lng != lng && lat != null && lng != null ) {
                 if ( typeof this.markerNew.lat != 'undefined' && typeof this.markerNew.lng != 'undefined' ) {
                         this.markerNew.marker.setMap(null);
                 }
-            }
+            //}
         }
         if (lat != null && lng != null) {
             this.markerNew.lat = lat;
             this.markerNew.lng = lng;
             var ar = {'lat':lat,'lng':lng,'name':title};
             this.markerNew.marker = $.rvadymGMap.marker(ar);
-            $.rvadymGMap.map.panTo(new google.maps.LatLng(lat,lng));
+            var LatLng = new google.maps.LatLng(lat,lng);
+            $.rvadymGMap.map.panTo(LatLng);
 
-            $('#'+this.f_location).val( title );
-            $('#'+this.f_location).change();
-            $('#'+this.f_lat).val( lat );
-            $('#'+this.f_lat).change();
-            $('#'+this.f_lng).val( lng );
-            $('#'+this.f_lng).change();
+
 
             google.maps.event.addListener(that.markerNew.marker, 'dragend', function() {
                 that.geocodePosition(that.markerNew.marker.getPosition());
@@ -142,11 +178,9 @@ $.each({
             function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                     $('#'+that.f_location).val( results[0].formatted_address );
-                    $('#'+that.f_location).change();
                     $('#'+that.f_lat).val( pos.lat() );
-                    $('#'+that.f_lat).change();
                     $('#'+that.f_lng).val( pos.lng() );
-                    $('#'+that.f_lng).change();
+                    $('#'+that.f_location).change();
 
                 } else {
                     alert('Cannot determine address at this location.'+status);

@@ -11,12 +11,6 @@ abstract class Form_WithMap extends \Form {
 
     public $map;
     public $map_config   = array();
-    //public $form_config  = array();
-
-    // GMAP FEATURES TO BE ENABLED
-    //protected $location_enabled       = true;
-    //protected $draw_enabled           = false;
-
 
     // FIELDS
     protected $draw_field;
@@ -26,7 +20,7 @@ abstract class Form_WithMap extends \Form {
     protected $lng_field;
 
     //
-    protected $addr_field_placeholder = 'Type here to search place by address';
+    protected $addr_field_placeholder = 'Type here to search for location, next drag pin on the map to find exact location';
 
     function init() {
         parent::init();
@@ -69,11 +63,13 @@ abstract class Form_WithMap extends \Form {
             $this->lng_field= $this->addField('Line',$lng);
         }
 
-        //$this->hideLocationFields();
+        $this->hideLocationFields();
         $this->addMap();
-        $this->setLocationVars();
+        $this->setLocationViewElements();
+        //$this->trySetMarker();
         $this->addAddressFieldJsAction();
         $this->addAddressView();
+        $this->address_field->js(true)->trigger('change');
     }
     protected function hideLocationFields() {
         if ($this->location_field) $this->location_field->js(true)->closest('.atk-form-row')->hide();
@@ -99,23 +95,13 @@ abstract class Form_WithMap extends \Form {
             $this->js()->_selectorThis()->rvadymGMap_form()->getCoordByAddr($this->app->url(null,array('rvadym_gmap_action'=>'getAddress'))
         ));
     }
-    protected function setLocationVars() {
-        $this->js(true)->rvadymGMap_form()->setLocationVars(
+    protected function setLocationViewElements() {
+        $this->js(true)->rvadymGMap_form()->setLocationViewElements(
             $this->location_field->name,
             $this->lat_field->name,
             $this->lng_field->name,
             $this->address_field->name
         );
-
-        if ($this->model)
-        if ($this->model->hasElement($this->lat_field->short_name) && $this->model->hasElement($this->lng_field->short_name))
-        if ($this->model->get($this->lat_field->short_name)!='' && $this->model->get($this->lng_field->short_name)!='') {
-            $this->map->js(true)->rvadymGMap_form()->markerNew(
-                $this->model->get($this->lat_field->short_name),
-                $this->model->get($this->lng_field->short_name),
-                $this->model->get($this->location_field->short_name)
-            );
-        }
     }
 
     // LOCATION -----------------------------------------------------------------------
@@ -131,36 +117,34 @@ abstract class Form_WithMap extends \Form {
         $this->map = $this->add('rvadym\gmap\View_Map',$this->map_config);
         $this->map->addJs();
         $this->map->showMap();
-//        if ($this->location_enabled) $this->setLocationVars();
-//        if ($this->draw_enabled) $this->setDrawVars();
+        //if ($this->draw_enabled) $this->setDrawVars();
     }
-    public function checkForm() {
-        if ($this->location_enabled) {
-            if (
-                $this->get($this->addr_f->short_name) == '' ||
-                $this->get($this->location_field) == '' ||
-                $this->get($this->lat_field) == '' ||
-                $this->get($this->lng_field) == ''
-            ) {
-                // TODO notify developerst about bad working form
-                $this->js()->univ()->errorMessage('Something went wrong!')->execute();
-            }
-            if (
-                ( is_object($this->addr_f) && $this->model->hasField($this->addr_f->short_name) && $this->get($this->addr_f->short_name) == $this->model->get($this->addr_f->short_name)) ||
-                ( is_object($this->location_field) &&  $this->model->hasField($this->location_field->short_name) && $this->get($this->location_field->short_name) == $this->model->get($this->location_field->short_name)) ||
-                ( is_object($this->lat_field) &&  $this->model->hasField($this->lat_field->short_name) && $this->get($this->lat_field->short_name) == $this->model->get($this->lat_field->short_name)) ||
-                ( is_object($this->lng_field) &&  $this->model->hasField($this->lng_field->short_name) && $this->get($this->lng_field->short_name) == $this->model->get($this->lng_field->short_name))
-            ) {
-                $this->js()->univ()->errorMessage('You didn\'t change location')->execute();
-            } else {
-            }
-        }
-        if ($this->draw_enabled) {
-            // check form draw field //
+    protected function checkLocationFields() {
+
+        $js = array();
+
+        if (
+            $this->get($this->address_field->short_name) == '' ||
+            $this->get($this->location_field->short_name) == '' ||
+            $this->get($this->lat_field->short_name) == '' ||
+            $this->get($this->lng_field->short_name) == ''
+        ) {
+            // TODO notify developerst about bad working form
+            //$this->js()->univ()->errorMessage('Something went wrong!')->execute();
         }
 
-        $this->model->set($this->get())->save();
-        $this->js()->univ()->successMessage('Updated')->execute();
+        /*if (
+            ( is_object($this->address_field) && $this->model->hasField($this->addr_f->short_name) && $this->get($this->addr_f->short_name) == $this->model->get($this->addr_f->short_name)) ||
+            ( is_object($this->location_field) &&  $this->model->hasField($this->location_field->short_name) && $this->get($this->location_field->short_name) == $this->model->get($this->location_field->short_name)) ||
+            ( is_object($this->lat_field) &&  $this->model->hasField($this->lat_field->short_name) && $this->get($this->lat_field->short_name) == $this->model->get($this->lat_field->short_name)) ||
+            ( is_object($this->lng_field) &&  $this->model->hasField($this->lng_field->short_name) && $this->get($this->lng_field->short_name) == $this->model->get($this->lng_field->short_name))
+        ) {
+            $js = $this->js()->univ()->errorMessage('You didn\'t change location')->execute();
+        } else {
+            // TODO do more operations
+        }*/
+
+        return $js;
     }
     function render() {
         $this->js(true)
@@ -177,7 +161,6 @@ abstract class Form_WithMap extends \Form {
     //                                UTIL
     //
     //--------------------------------------------------------------------------------
-
 
     // change to geocoder
     // http://www.wikihow.com/Geocode-an-Address-in-Google-Maps-Javascript
@@ -282,6 +265,13 @@ abstract class Form_WithMap extends \Form {
      *
      */
 
+    //public $form_config  = array();
+
+    // GMAP FEATURES TO BE ENABLED
+    //protected $location_enabled       = true;
+    //protected $draw_enabled           = false;
+
+
 //    function defaultTemplate() {
         // add add-on locations to pathfinder
 //		$l = $this->api->locate('addons',__NAMESPACE__,'location');
@@ -309,5 +299,18 @@ abstract class Form_WithMap extends \Form {
 //        //if ($this->draw_enabled) $this->configureDrawField();
 //        $this->addMap();
 //        //$this->setOrder();
+//    }
+
+
+//    protected function trySetMarker() {
+//        if ($this->model)
+//            if ($this->model->hasElement($this->lat_field->short_name) && $this->model->hasElement($this->lng_field->short_name))
+//                if ($this->model->get($this->lat_field->short_name)!='' && $this->model->get($this->lng_field->short_name)!='') {
+//                    $this->map->js(true)->rvadymGMap_form()->markerNew(
+//                        $this->model->get($this->lat_field->short_name),
+//                        $this->model->get($this->lng_field->short_name),
+//                        $this->model->get($this->location_field->short_name)
+//                    );
+//                }
 //    }
 }

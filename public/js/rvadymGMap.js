@@ -48,7 +48,7 @@ $.each({
         this.drawingManager.setMap($.rvadymGMap.map);
         this.drawOptions(options);
     },
-    polygonsArray: function(val){ console.log('polygonsArray = null');
+    polygonsArray: function(val){ //console.log('polygonsArray = null');
         if (typeof polygonsArray == 'undefined' || polygonsArray == null) polygonsArray = new Array;
         if (typeof val != 'undefined') {
             if (val == null) {

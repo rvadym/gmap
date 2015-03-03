@@ -1,0 +1,24 @@
+{
+    "name": "rvadym/gmap",
+    "type": "library",
+    "version": "4.3.x",
+    "description": "AgileToolkit Google Map addon",
+    "keywords": ["addon","atk4"],
+    "authors": [
+        {
+            "name": "Vadym Radvansky"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "atk4\/atk4":"4.3.*@dev"
+    },
+
+    "require-dev": {
+        "robmorgan/phinx": "*"
+    },
+
+    "autoload": {
+        "psr-0": {"rvadym\\gmap": "lib/"}
+    }
+}

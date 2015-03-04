@@ -28,15 +28,21 @@ $.rvadym_gmap_form._import=function(name,fn){
 
 $.each({
 
-    setLocationVars : function (f_location, f_lat, f_lng, f_address, map_view_id){
+    setLocationVars : function (f_location, f_lat, f_lng, f_address, f_zoom, map_view_id){
     	this.f_location  = f_location;
-    	this.f_lat        = f_lat;
-    	this.f_lng        = f_lng;
+    	this.f_lat       = f_lat;
+    	this.f_lng       = f_lng;
     	this.f_address   = f_address;
+    	this.f_zoom      = f_zoom;
     	this.map_view_id = map_view_id;
     },
     setDrawVars : function (f_draw){
     	this.f_draw  = f_draw;
+    },
+    updateZoomField: function(val) {
+        console.log('..... ** zoom changed to ' + val);
+        console.log($('#' + this.f_zoom).val());
+        $('#' + this.f_zoom).val(val);
     },
     getCoordByAddr: function(url){
         form_this = this;

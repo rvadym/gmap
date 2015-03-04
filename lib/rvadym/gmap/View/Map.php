@@ -162,7 +162,7 @@ class View_Map extends \View {
         return false;
     }
     function render() {
-        $this->addClass('atk-form-row atk-cell ');
+        //$this->addClass('atk-form-row atk-cell ');
         $this->setWidthHeight();
         $this->js(true)
       			->_load('rvadym_gmap')

@@ -18,6 +18,7 @@ class Form_WithMap extends \Form {
     protected $location_field         = 'location';
     protected $lat_field              = 'lat';
     protected $lng_field              = 'lng';
+    protected $zoom_field             = 'zoom';
 
     function init() {
         parent::init();
@@ -108,6 +109,14 @@ class Form_WithMap extends \Form {
         } else {
             $this->lng_f = $this->addField('Hidden',$this->lng_field);
         }
+
+        // zoom
+        if ($this->hasElement($this->zoom_field)) {
+            $this->zoom_f = $this->getElement($this->zoom_field);
+        } else {
+            $this->zoom_f = $this->addField('Hidden',$this->zoom_field);
+        }
+
         $this->hideLocationFields();
 
     }
@@ -143,6 +152,7 @@ class Form_WithMap extends \Form {
         $this->hideDrawFields();
     }
     private function hideLocationFields() {
+        $this->getElement($this->zoom_field)->js(true)->closest('.atk-form-row')->hide();
         $this->getElement($this->location_field)->js(true)->closest('.atk-form-row')->hide();
         $this->getElement($this->lat_field)->js(true)->closest('.atk-form-row')->hide();
         $this->getElement($this->lng_field)->js(true)->closest('.atk-form-row')->hide();
@@ -153,6 +163,11 @@ class Form_WithMap extends \Form {
     function addMap() {
         $this->map = $this->add('rvadym\gmap\View_Map',$this->map_config);
         $this->map->addJs();
+
+        if ($this->model->hasElement($this->zoom_field) && $this->model->get($this->zoom_field)) {
+            $this->map->setZoom( (int) $this->model->get($this->zoom_field) );
+        }
+
         $this->map->showMap();
         if ($this->form_config['location']==true) $this->setLocationVars();
         if ($this->form_config['draw']==true) $this->setDrawVars();
@@ -162,7 +177,8 @@ class Form_WithMap extends \Form {
             $this->getElement($this->location_field)->name,
             $this->getElement($this->lat_field)->name,
             $this->getElement($this->lng_field)->name,
-            $this->getElement($this->address_field)->name
+            $this->getElement($this->address_field)->name,
+            $this->getElement($this->zoom_field)->name
         );
 
         if ($this->model->hasElement($this->lat_field) && $this->model->hasElement($this->lng_field))

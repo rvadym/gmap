@@ -38,6 +38,13 @@ $.each({
     		mapTypeId: eval(map_type_id)
     	};
         $.rvadym_gmap.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
+        $.rvadym_gmap.addZoomListener();
+    },
+    addZoomListener: function() {
+        google.maps.event.addListener($.rvadym_gmap.map, 'zoom_changed', function() {
+            var zoomLevel = $.rvadym_gmap.map.getZoom();
+            $.rvadym_gmap_form.updateZoomField(zoomLevel);
+        });
     },
     drawOptions: function(options){
         if (typeof options != 'undefined') { draw_options = options; }

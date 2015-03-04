@@ -26,7 +26,7 @@ class Form_WithMap extends \Form {
             exit();
         }
 
-        //if (isset($this->form_config['map_fields'])) $this->prepareFieldsNames();
+        if (isset($this->form_config['map_fields'])) $this->prepareFieldsNames();
         if ($this->form_config['location']==true) $this->addLocation();
         if ($this->form_config['draw']==true) $this->addDraw();
 
@@ -49,20 +49,20 @@ class Form_WithMap extends \Form {
     private function addDraw(){
         //echo 'addDraw()';
     }
-//    private function prepareFieldsNames(){
-//        if (is_array($this->form_config['map_fields'])) {
-//            if (array_key_exists('address_field',$this->form_config['map_fields']))
-//                $this->address_field = $this->form_config['map_fields']['address_field'];
-//            if (array_key_exists('addr_field_placeholder',$this->form_config['map_fields']))
-//                $this->addr_field_placeholder = $this->form_config['map_fields']['addr_field_placeholder'];
-//            if (array_key_exists('location_field',$this->form_config['map_fields']))
-//                $this->location_field = $this->form_config['map_fields']['location_field'];
-//            if (array_key_exists('lat_field',$this->form_config['map_fields']))
-//                $this->lat_field = $this->form_config['map_fields']['lat_field'];
-//            if (array_key_exists('lng_field',$this->form_config['map_fields']))
-//                $this->lng_field = $this->form_config['map_fields']['lng_field'];
-//        }
-//    }
+    private function prepareFieldsNames(){
+        if (is_array($this->form_config['map_fields'])) {
+            if (array_key_exists('address_field',$this->form_config['map_fields']))
+                $this->address_field = $this->form_config['map_fields']['address_field'];
+            if (array_key_exists('addr_field_placeholder',$this->form_config['map_fields']))
+                $this->addr_field_placeholder = $this->form_config['map_fields']['addr_field_placeholder'];
+            if (array_key_exists('location_field',$this->form_config['map_fields']))
+                $this->location_field = $this->form_config['map_fields']['location_field'];
+            if (array_key_exists('lat_field',$this->form_config['map_fields']))
+                $this->lat_field = $this->form_config['map_fields']['lat_field'];
+            if (array_key_exists('lng_field',$this->form_config['map_fields']))
+                $this->lng_field = $this->form_config['map_fields']['lng_field'];
+        }
+    }
     function setModel($model,$actual_fields=undefined){
         parent::setModel($model,$actual_fields);
         //$this->model->addHook('afterLoad',array($this,'afterLoad'));

@@ -40,8 +40,6 @@ $.each({
     	this.f_draw  = f_draw;
     },
     updateZoomField: function(val) {
-        console.log('..... ** zoom changed to ' + val);
-        console.log($('#' + this.f_zoom).val());
         $('#' + this.f_zoom).val(val);
     },
     getCoordByAddr: function(url){

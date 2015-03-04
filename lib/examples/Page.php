@@ -6,7 +6,7 @@
  * Time: 1:14 PM
  * To change this template use File | Settings | File Templates.
  */
-namespace x_gm;
+namespace rvadym\gmap;
 class examples_Page extends \Page {
     function init() {
         parent::init();
@@ -14,7 +14,7 @@ class examples_Page extends \Page {
     function page_index() {
 
         // we will load all maps by AJAX, so we need to add these lines to add static js to page
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'libraries'=>array('drawing'),
         ));
         $map->addJsAndDestroy();
@@ -25,7 +25,7 @@ class examples_Page extends \Page {
         $this->tt->addTabUrl('./mapdraw','Map with drawing');
     }
     function page_map(){
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
             'lat'=>'51.5081289',
             'lng'=>'-0.128005',
@@ -34,7 +34,7 @@ class examples_Page extends \Page {
     }
     function page_mapdraw(){
         $m = $this->add('Model_CountryD')->loadAny();
-        $f = $this->add('x_gm\Form_WithMap',array(
+        $f = $this->add('rvadym\gmap\Form_WithMap',array(
             'form_config'=>array(
                 'draw'=>true,
                 'map_fields'=>array(
@@ -80,7 +80,7 @@ class examples_Page extends \Page {
      * of your models
      */
     function page_mapform(){
-        $form = $this->add('x_gm\Form_WithMap',array(
+        $form = $this->add('rvadym\gmap\Form_WithMap',array(
                     'form_config'=>array(
                         'location'=>true,
                         'map_fields'=>array(

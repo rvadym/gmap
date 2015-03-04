@@ -8,36 +8,36 @@
 
 (function($){
 
-$.x_gm=function(){
-	return $.x_gm;
+$.rvadym_gmap=function(){
+	return $.rvadym_gmap;
 }
 
-$.fn.extend({x_gm:function(){
-	var u=new $.x_gm;
+$.fn.extend({rvadym_gmap:function(){
+	var u=new $.rvadym_gmap;
 	u.jquery=this;
 	return u;
 }});
 
 
-$.x_gm._import=function(name,fn){
-	$.x_gm[name]=function(){
-		var ret=fn.apply($.x_gm,arguments);
-		return ret?ret:$.x_gm;
+$.rvadym_gmap._import=function(name,fn){
+	$.rvadym_gmap[name]=function(){
+		var ret=fn.apply($.rvadym_gmap,arguments);
+		return ret?ret:$.rvadym_gmap;
 	}
 }
 
 $.each({
 
     start: function(lat,lng,zoom,options,map_type_id){
-        $.x_gm.polygonsCoords(null);
-        $.x_gm.polygonsArray(null);
+        $.rvadym_gmap.polygonsCoords(null);
+        $.rvadym_gmap.polygonsArray(null);
         if (typeof map_type_id == 'undefined') map_type_id = 'google.maps.MapTypeId.ROADMAP';
     	def={
     		zoom: zoom,
     		center: new google.maps.LatLng(lat,lng),
     		mapTypeId: eval(map_type_id)
     	};
-        $.x_gm.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
+        $.rvadym_gmap.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
     },
     drawOptions: function(options){
         if (typeof options != 'undefined') { draw_options = options; }
@@ -45,7 +45,7 @@ $.each({
     },
     addDrawingManager: function(options){
         this.drawingManager = new google.maps.drawing.DrawingManager(options);
-        this.drawingManager.setMap($.x_gm.map);
+        this.drawingManager.setMap($.rvadym_gmap.map);
         this.drawOptions(options);
     },
     polygonsArray: function(val){ console.log('polygonsArray = null');
@@ -84,7 +84,7 @@ $.each({
     },
     polygons: function(options){
         this.polygonsOptions(options);
-        var polygonsArray = $.x_gm.polygonsArray();
+        var polygonsArray = $.rvadym_gmap.polygonsArray();
 
         google.maps.event.addListener(this.drawingManager, 'polygoncomplete', function(polygon) {
             if (polygons_options.single==true) {
@@ -93,26 +93,26 @@ $.each({
             } else {
                 polygonsArray[polygonsArray.length] = polygon;
             }
-            $.x_gm.setFieldData(polygon);
+            $.rvadym_gmap.setFieldData(polygon);
 
             for (var i= 0; i<polygonsArray.length; i++) {
                 var f = polygonsArray[i].getPath();
                 f.forEach(function(element,index){
                     //console.log(element);
                 });
-                $.x_gm.addPolygonListeners(polygonsArray[i]);
+                $.rvadym_gmap.addPolygonListeners(polygonsArray[i]);
             }
         });
     },
     addPolygonListeners: function(polygon){
         google.maps.event.addListener(polygon.getPath(), 'set_at', function() {
-            $.x_gm.setFieldData();
+            $.rvadym_gmap.setFieldData();
         });
         google.maps.event.addListener(polygon.getPath(), 'insert_at', function() {
-            $.x_gm.setFieldData();
+            $.rvadym_gmap.setFieldData();
         });
         google.maps.event.addListener(polygon.getPath(), 'remove_at', function() {
-            $.x_gm.setFieldData();
+            $.rvadym_gmap.setFieldData();
         });
 
         // delete polygon point by click on it
@@ -156,7 +156,7 @@ $.each({
         var arr = $.parseJSON(json_string);
         if (arr != null) {
             getPolygon(arr);
-            $.x_gm.fitZoom($.x_gm.getFitBounds($.x_gm.polygonsCoords()));
+            $.rvadym_gmap.fitZoom($.rvadym_gmap.getFitBounds($.rvadym_gmap.polygonsCoords()));
         }
 
         function getPolygon(arr) {
@@ -167,19 +167,19 @@ $.each({
                 getPolygon(arr[0]); return;
             }
             var poly = new google.maps.Polygon;
-            poly.setPath( $.x_gm.getPointsPath(arr) );
+            poly.setPath( $.rvadym_gmap.getPointsPath(arr) );
             poly.setOptions(draw_options.polygonOptions);
             if (draw_options.polygonOptions.editable) { ; }
-            poly.setMap($.x_gm.map);
-            $.x_gm.polygonsArray(poly);
-            $.x_gm.addPolygonListeners(poly);
+            poly.setMap($.rvadym_gmap.map);
+            $.rvadym_gmap.polygonsArray(poly);
+            $.rvadym_gmap.addPolygonListeners(poly);
         }
     },
     getPointsPath: function(arr) {
         var path = new google.maps.MVCArray;
         for (var i=0; i<arr.length; i++) {
             var a = arr[i];
-            path.push($.x_gm.latlng(a[1],a[0]));
+            path.push($.rvadym_gmap.latlng(a[1],a[0]));
             // global points
             var b = new Object();
             b.lat = a[1];
@@ -215,7 +215,7 @@ $.each({
           //console.log(SouthWest);
           var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
           //console.log(bounds);
-          $.x_gm.map.fitBounds(bounds);
+          $.rvadym_gmap.map.fitBounds(bounds);
       } else {
           console.log('points is null');
       }
@@ -225,7 +225,7 @@ $.each({
         var marker = new google.maps.Marker({
             position: new google.maps.LatLng(args['lat'],args['lng']),
             animation: google.maps.Animation.DROP,
-            map: $.x_gm.map,
+            map: $.rvadym_gmap.map,
             title:args['name'],
             clickable:true
         });
@@ -248,13 +248,13 @@ $.each({
         if(args['name']) {
             google.maps.event.addListener(marker, 'click', function() {
                 //$.univ().frameURL('title',args['frame_url']);
-                if( typeof $.x_gm.marker.infowindow != 'undefined' ) {
-                    $.x_gm.marker.infowindow.close();
+                if( typeof $.rvadym_gmap.marker.infowindow != 'undefined' ) {
+                    $.rvadym_gmap.marker.infowindow.close();
                 }
-                $.x_gm.marker.infowindow = new google.maps.InfoWindow({
+                $.rvadym_gmap.marker.infowindow = new google.maps.InfoWindow({
                    content: args['name']
                 });
-                $.x_gm.marker.infowindow.open($.x_gm,marker);
+                $.rvadym_gmap.marker.infowindow.open($.rvadym_gmap,marker);
             });
         }
 
@@ -263,27 +263,27 @@ $.each({
   // If you find that your google map appears with the gray background
   // in a tab or form, you should do this:
   //
-  // $tabs->js('tabsactivate',$tt->js()->x_gm()->resize());
+  // $tabs->js('tabsactivate',$tt->js()->rvadym_gmap()->resize());
   // or use identical event for Dialog
   //
   resize: function(){
-      return new google.maps.event.trigger($.x_gm,'resize');
+      return new google.maps.event.trigger($.rvadym_gmap,'resize');
   },
   markerCounter: function(marker){
-      if( typeof $.x_gm.markerCounter.markers == 'undefined' ) { $.x_gm.markerCounter.markers = []; }
-//      console.log($.x_gm.markerCounter.markers.length);
-      $.each($.x_gm.markerCounter.markers, function(index, value) {
+      if( typeof $.rvadym_gmap.markerCounter.markers == 'undefined' ) { $.rvadym_gmap.markerCounter.markers = []; }
+//      console.log($.rvadym_gmap.markerCounter.markers.length);
+      $.each($.rvadym_gmap.markerCounter.markers, function(index, value) {
           if (value.title == marker.title) {
               console.log('===> ' +value.title + ': ' + marker.title);
           }
       });
 
-      $.x_gm.markerCounter.markers[$.x_gm.markerCounter.markers.length] = marker;
+      $.rvadym_gmap.markerCounter.markers[$.rvadym_gmap.markerCounter.markers.length] = marker;
   },
     renderMapWithTimeout: function(map,time){
-        $.x_gm.getCoordinatesByAddr.lastRequest = '';
-        $.x_gm.markerNew.marker = undefined;
-        //console.log('marker must be undefined - '+$.x_gm.markerNew.marker );
+        $.rvadym_gmap.getCoordinatesByAddr.lastRequest = '';
+        $.rvadym_gmap.markerNew.marker = undefined;
+        //console.log('marker must be undefined - '+$.rvadym_gmap.markerNew.marker );
         if ( typeof time == 'undefined' ) time = 5000;
         setTimeout(
             function () {
@@ -291,21 +291,21 @@ $.each({
 
                 setTimeout(
                     function () {
-                        //console.log('$.x_gm.f_location value = ' + $('#'+$.x_gm.f_location).val());
-                        //console.log('$.x_gm.f_lat value = ' + $('#'+$.x_gm.f_lat).val());
-                        //console.log('$.x_gm.f_lng value = ' + $('#'+$.x_gm.f_lng).val());
+                        //console.log('$.rvadym_gmap.f_location value = ' + $('#'+$.rvadym_gmap.f_location).val());
+                        //console.log('$.rvadym_gmap.f_lat value = ' + $('#'+$.rvadym_gmap.f_lat).val());
+                        //console.log('$.rvadym_gmap.f_lng value = ' + $('#'+$.rvadym_gmap.f_lng).val());
                         if (
-                          //$('#'+$.x_gm.f_location).val() != null && $('#'+$.x_gm.f_location).val() != '' &&
-                          $('#'+$.x_gm.f_lat).val() != null && $('#'+$.x_gm.f_lat).val() != '' &&
-                          $('#'+$.x_gm.f_lng).val() != null &&$('#'+$.x_gm.f_lng).val() != ''
+                          //$('#'+$.rvadym_gmap.f_location).val() != null && $('#'+$.rvadym_gmap.f_location).val() != '' &&
+                          $('#'+$.rvadym_gmap.f_lat).val() != null && $('#'+$.rvadym_gmap.f_lat).val() != '' &&
+                          $('#'+$.rvadym_gmap.f_lng).val() != null &&$('#'+$.rvadym_gmap.f_lng).val() != ''
                         ) {
-                            $.x_gm.markerNew($('#'+$.x_gm.f_lat).val(),$('#'+$.x_gm.f_lng).val(),$('#'+$.x_gm.f_location).val());
+                            $.rvadym_gmap.markerNew($('#'+$.rvadym_gmap.f_lat).val(),$('#'+$.rvadym_gmap.f_lng).val(),$('#'+$.rvadym_gmap.f_location).val());
                         }
                     },500)
                 }
                 ,time
         );
     }
-},$.x_gm._import);
+},$.rvadym_gmap._import);
 
 })(jQuery);

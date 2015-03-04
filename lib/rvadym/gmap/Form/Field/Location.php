@@ -1,5 +1,5 @@
 <?php
-namespace x_gm;
+namespace rvadym\gmap;
 /**
  * This class adds a new field. This field is for typing address. It will be
  * equipped with a "show map" button to bring up a pop-up with a map. You can
@@ -14,7 +14,7 @@ class Form_Field_Location extends \Form_Field_Line {
         $this->addr_url=$this->add('VirtualPage','getaddr')
             ->set(function($p){
                 echo json_encode( 
-                    $p->add('x_gm/Form_WithMap')->getCoordByAddr($_GET['addr'])
+                    $p->add('rvadym\gmap\Form_WithMap')->getCoordByAddr($_GET['addr'])
                 );
                 exit;
             })->getURL();
@@ -41,13 +41,13 @@ class Form_Field_Location extends \Form_Field_Line {
 
     }
     function page_Map($p){
-        $this->map=$map=$p->add('x_gm\View_Map',array(
+        $this->map=$map=$p->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
             'lat'=>'51.5081289',
             'lng'=>'-0.128005',
         ));
 
-        $p->js(true)->_load('x_gm_form')->_load('x_gm_field')->gm_field(array(
+        $p->js(true)->_load('rvadym_gmap_form')->_load('rvadym_gmap_field')->gm_field(array(
             'addr_line'=>$this,
             'address_lookup'=>$this->addr_url,
             'map_id'=>$this->map,

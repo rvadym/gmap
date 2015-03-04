@@ -13,21 +13,21 @@
 1. a)  add these lines to page if you will load map View with ajax
       this code will add static js include to page with map because we can't load js from other domain by ajax
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
         $map->addJsAndDestroy();
 
    b) or this code if you will load map View with no ajax
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
         $map->addJs();
 
 2. a) Add to View which will be loaded by ajax. Same like before.
 
-        $map=$this->add('x_gm\View_Map',array(
+        $map=$this->add('rvadym\gmap\View_Map',array(
             'sensor'=>'true',
         ));
    b) Don't do anything special if you load View with no ajax
@@ -42,7 +42,7 @@
 
 
  */
-namespace x_gm;
+namespace rvadym\gmap;
 class View_Map extends \View {
 	public $height=400;
 	public $width=400;
@@ -57,30 +57,43 @@ class View_Map extends \View {
     public $options = array();
 	function init(){
 		parent::init();
+
+
+        $this->namespace = __NAMESPACE__;
+        $public_location = $this->app->pathfinder->addLocation(array(
+            'js'=>array( 'packages/' . str_replace(['\\','/'],'_',$this->namespace) . '/js' ),
+            'css'=>array( 'packages/' . str_replace(['\\','/'],'_',$this->namespace) . '/css' ),
+        ))
+            ->setBasePath(getcwd().'/public')
+            ->setBaseURL($this->app->url('/'))
+        ;
+
+
+
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?sensor='.$this->sensor;
 		$this->set('Loading Google Map...');
 	}
     private $show_map_trigger = true;
     function showMap($trigger=true){
         $this->show_map_trigger = $trigger;
-        $this->js($trigger)->x_gm()->start($this->lat,$this->lng,$this->zoom);
+        $this->js($trigger)->rvadym_gmap()->start($this->lat,$this->lng,$this->zoom);
         $this->addDrawing();
         return $this;
    	}
     private function addDrawing(){
         if (in_array('drawing',$this->libraries)) {
-            $this->js($this->show_map_trigger)->x_gm()->addDrawingManager($this->js(null,$this->draw_options));
+            $this->js($this->show_map_trigger)->rvadym_gmap()->addDrawingManager($this->js(null,$this->draw_options));
             $this->polygons();
             $this->circles();
         }
     }
     public $polygon_options = array();
     private function polygons() {
-        if (is_a($this->owner,'x_gm\Form_WithMap')) {
+        if (is_a($this->owner,'rvadym\gmap\Form_WithMap')) {
             $this->polygon_options['form_id'] = $this->owner->name;
             $this->polygon_options['draw_field_id'] = $this->owner->draw_f->name;
         }
-        $this->js($this->show_map_trigger)->x_gm()->polygons($this->polygon_options);
+        $this->js($this->show_map_trigger)->rvadym_gmap()->polygons($this->polygon_options);
     }
     private function circles() {
         // CREATE
@@ -91,7 +104,7 @@ class View_Map extends \View {
         return $this;
     }
     function setMarker($args=null,$trigger=true){
-        $this->js($trigger)->x_gm()->marker($args);
+        $this->js($trigger)->rvadym_gmap()->marker($args);
         return $this;
     }
     function setZoom($zoom){
@@ -121,11 +134,14 @@ class View_Map extends \View {
         $this->destroy();
     }
     private function addDrawingManager(){
-        $this->js()->x_gm()->addDrawingManager();
+        $this->js()->rvadym_gmap()->addDrawingManager();
         return $this;
     }
     private function setWidthHeight(){
-   		$this->addStyle(array('height'=>$this->height.'px'));
+   		$this->addStyle([
+            'height'=>$this->height.'px',
+            'width'=>$this->width.'px',
+        ]);
         return $this;
    	}
     function findBounds($points){
@@ -146,23 +162,24 @@ class View_Map extends \View {
         return false;
     }
     function render() {
+        $this->addClass('atk-form-row atk-cell ');
         $this->setWidthHeight();
         $this->js(true)
-      			->_load('x_gm')
-      	//		->_css('x_gm')
+      			->_load('rvadym_gmap')
+      	//		->_css('rvadym_gmap')
         ;
         parent::render();
     }
-    function defaultTemplate() {
-		// add add-on locations to pathfinder
-		$l = $this->api->locate('addons',__NAMESPACE__,'location');
-		$addon_location = $this->api->locate('addons',__NAMESPACE__);
-		$this->api->pathfinder->addLocation($addon_location,array(
-			'js'=>'templates/js',
-			'css'=>'templates/css',
-            'template'=>'templates',
-		))->setParent($l);
-
-        return parent::defaultTemplate();
-    }
+//    function defaultTemplate() {
+//		// add add-on locations to pathfinder
+//		$l = $this->api->locate('addons',__NAMESPACE__,'location');
+//		$addon_location = $this->api->locate('addons',__NAMESPACE__);
+//		$this->api->pathfinder->addLocation($addon_location,array(
+//			'js'=>'templates/js',
+//			'css'=>'templates/css',
+//            'template'=>'templates',
+//		))->setParent($l);
+//
+//        return parent::defaultTemplate();
+//    }
 }

@@ -1,32 +1,54 @@
 /**
- * Created with JetBrains PhpStorm.
- * User: vadym
- * Date: 1/21/13
- * Time: 7:25 PM
- * To change this template use File | Settings | File Templates.
+ * User: romans
+ *
+ * implements necessary js for a field with a popup. Apply this widget on
+ * top of the Popover
  */
 
 (function($){
 
-$.x_gm_form=function(){
-	return $.x_gm_form;
-}
+$.widget('ui.gm_field', {
 
-$.fn.extend({x_gm_form:function(){
-	var u=new $.x_gm_form;
-	u.jquery=this;
-	return u;
-}});
+	// Few different ways to display a message
+	options: {
+		address_lookup: null, // url for address lookup
+        map_id: null,  // selector for google map
+        lon: null,
+        lat: null
+	},
+
+    _create: function() {
+        // Creates the widget
 
 
-$.x_gm_form._import=function(name,fn){
-	$.x_gm_form[name]=function(){
-		var ret=fn.apply($.x_gm_form,arguments);
-		return ret?ret:$.x_gm_form;
-	}
-}
+    },
+    lookup: function(){
+        var addr=$(this.options.addr_line).val().trim();
+        if(!addr)return;
+        var self=this;
 
-$.each({
+        $.getJSON(
+            this.options.address_lookup+'&addr='+addr,
+            function(data) {
+                $(self.options.map_id).rvadym_gmap_form().markerNew(data.lat,data.lng,data.name,data);
+
+                console.log(self.options.lon);
+                $(self.options.lon).val(data.lng);
+                $(self.options.lat).val(data.lat);
+            }
+        );
+    },
+
+    _destroy: function(){ 
+        console.log('destroyed');
+    }
+
+});
+
+})(jQuery);
+
+/*
+
 
     setLocationVars : function (f_location, f_lat, f_lng, f_address, map_view_id){
     	this.f_location  = f_location;
@@ -53,7 +75,7 @@ $.each({
                     $.getJSON(url+'&addr='+addr,
                         function(data) {
                           $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lng+' lat '+data.lat+'</i>');
-                          $('#'+map_id).x_gm_form().markerNew(data.lat,data.lng,data.name,data);
+                          $('#'+map_id).rvadym_gmap_form().markerNew(data.lat,data.lng,data.name,data);
                             console.log(map_id);
                     });
                     form_this.getCoordByAddr.lastRequest = addr;
@@ -75,8 +97,8 @@ $.each({
             this.markerNew.lat = lat;
             this.markerNew.lng = lng;
             var ar = {'lat':lat,'lng':lng,'name':title};
-            this.markerNew.marker = $.x_gm.marker(ar);
-            $.x_gm.map.panTo(new google.maps.LatLng(lat,lng));
+            this.markerNew.marker = $.rvadym_gmap.marker(ar);
+            $.rvadym_gmap.map.panTo(new google.maps.LatLng(lat,lng));
 
             $('#'+this.f_location).val( title );
             $('#'+this.f_lat).val( lat );
@@ -84,6 +106,7 @@ $.each({
         }
     }
 
-},$.x_gm_form._import);
+},$.rvadym_gmap_form._import);
 
 })(jQuery);
+*/

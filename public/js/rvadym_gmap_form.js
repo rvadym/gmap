@@ -26,6 +26,10 @@ $.rvadym_gmap_form._import=function(name,fn){
 	}
 }
 
+$.rvadym_gmap_form.storrage = {
+	marker: null
+};
+
 $.each({
 
     setLocationVars : function (f_location, f_lat, f_lng, f_address, f_zoom, map_view_id){
@@ -43,9 +47,8 @@ $.each({
         $('#' + this.f_zoom).val(val);
     },
     getCoordByAddr: function(url){
-        form_this = this;
-        addr = $('#'+this.f_address).val();
-        map_id = this.map_view_id;
+        var form_this = this;
+        var addr = $('#'+this.f_address).val();
         if (this.getCoordByAddr.lastRequest == addr) { return; }
         if (addr.length >= 3 && this.getCoordByAddr.lastRequest != addr) {
             this.getCoordByAddr.counter = ( typeof this.getCoordByAddr.counter == 'undefined' )? 0: this.getCoordByAddr.counter+1;
@@ -56,9 +59,7 @@ $.each({
                     console.log("BINGO " +form_this.getCoordByAddr.counter);
                     $.getJSON(url+'&addr='+addr,
                         function(data) {
-                          $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lng+' lat '+data.lat+'</i>');
-                          $('#'+map_id).rvadym_gmap_form().markerNew(data.lat,data.lng,data.name,data);
-                            console.log(map_id);
+							$.rvadym_gmap_form.updateAddressBar( data.name, data.lng, data.lat );
                     });
                     form_this.getCoordByAddr.lastRequest = addr;
                     console.log('last request   = '+form_this.getCoordByAddr.lastRequest);
@@ -67,26 +68,43 @@ $.each({
             );
         }
     },
-    markerNew: function(lat,lng,title,args){
-        if( typeof this.markerNew.marker != 'undefined' ) {
-            if ( this.markerNew.lat != lat && this.markerNew.lng != lng && lat != null && lng != null ) {
-                if ( typeof this.markerNew.lat != 'undefined' && typeof this.markerNew.lng != 'undefined' ) {
-                        this.markerNew.marker.setMap(null);
-                }
-            }
-        }
-        if (lat != null && lng != null) {
-            this.markerNew.lat = lat;
-            this.markerNew.lng = lng;
-            var ar = {'lat':lat,'lng':lng,'name':title};
-            this.markerNew.marker = $.rvadym_gmap.marker(ar);
-            $.rvadym_gmap.map.panTo(new google.maps.LatLng(lat,lng));
 
-            $('#'+this.f_location).val( title );
-            $('#'+this.f_lat).val( lat );
-            $('#'+this.f_lng).val( lng );
-        }
-    }
+	// name suggestion -> updateOrCreateMarker
+    markerNew: function(lat,lng,title,args){
+
+		if (typeof lat === 'undefined' || lat === null) {
+			console.error('not correct lat'); return;
+		}
+		if (typeof lng === 'undefined' || lng === null) {
+			console.error('not correct lng'); return;
+		}
+
+		var latlng = new google.maps.LatLng(lat, lng);
+
+		// if marker already exist on the map
+		if ( this.storrage.marker !== null ) {
+			this.storrage.marker.setPosition( latlng );
+		}
+
+		// if there is no marker yet
+		else {
+			var ar = {'lat':lat,'lng':lng,'name':title};
+			this.storrage.marker = $.rvadym_gmap.marker(ar);
+		}
+
+		$.rvadym_gmap.map.panTo( latlng );
+
+		$('#'+this.f_location).val( title );
+		$('#'+this.f_lat).val( lat );
+		$('#'+this.f_lng).val( lng );
+    },
+	updateAddressBar: function(name,lng,lat,args) {
+		$('.res').html('<b>'+ name +'.</b> <i>lng '+ lng +' lat '+ lat +'</i>');
+
+		var map_id = this.map_view_id;
+		$('#'+map_id).rvadym_gmap_form().markerNew(lat,lng,name,args);
+		console.log(map_id);
+	}
 
 },$.rvadym_gmap_form._import);
 

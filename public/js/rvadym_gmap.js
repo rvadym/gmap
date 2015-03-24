@@ -233,12 +233,13 @@ $.each({
             position: new google.maps.LatLng(args['lat'],args['lng']),
             animation: google.maps.Animation.DROP,
             map: $.rvadym_gmap.map,
-            title:args['name'],
-            clickable:true
+            title: args['name'],
+            clickable: true,
+			draggable: true
         });
 
         if(args['thumb']) {
-            console.log(args['thumb']);
+            //console.log(args['thumb']);
             $.ajax({
                 url:args['thumb'],
                 type:'HEAD',
@@ -265,8 +266,42 @@ $.each({
             });
         }
 
-          return marker;
-      },
+		// http://gmaps-samples-v3.googlecode.com/svn/trunk/draggable-markers/draggable-markers.html
+		// Add dragging event listeners.
+		/*google.maps.event.addListener(marker, 'dragstart', function() {
+			updateMarkerAddress('Dragging...');
+		});*/
+
+	   /*google.maps.event.addListener(marker, 'drag', function() {
+			updateMarkerStatus('Dragging...');
+			updateMarkerPosition(marker.getPosition());
+		});*/
+
+		google.maps.event.addListener(marker, 'dragend', function() {
+			//updateMarkerStatus('Drag ended');
+			$.rvadym_gmap.geocodePosition(marker.getPosition());
+		});
+
+        return marker;
+
+    },
+	geocodePosition: function (pos, args) {
+		var geocoder = new google.maps.Geocoder();
+		geocoder.geocode({
+			latLng: pos
+		}, function(responses) {
+			if (responses && responses.length > 0) {
+				$.rvadym_gmap_form.updateAddressBar(
+					responses[0].formatted_address,
+					responses[0].geometry.location.D,
+					responses[0].geometry.location.k
+				);
+			} else {
+				alert('Cannot determine address at this location.');
+				//updateMarkerAddress('Cannot determine address at this location.');
+			}
+		});
+	},
   // If you find that your google map appears with the gray background
   // in a tab or form, you should do this:
   //
